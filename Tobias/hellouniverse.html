@@ -33,11 +33,6 @@
 			var test1 = new THREE.Geometry();
 			var test2 = new THREE.Geometry();
 			var test3 = new THREE.Geometry();
-			//test.vertices.push(
-				//new THREE.Vector3(0,0,0),
-				//new THREE.Vector3(1,1,1),
-				//new THREE.Vector3(0,0,0)
-			//);
 			
 			var testMat =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			
@@ -110,6 +105,8 @@
 				
 				console.log(test1);
 				console.log(test2);
+				
+				var transform = new THREE.TransformHelper(objectSpin2);
 
 				// Top-level node
 				scene.add( sceneRoot );
@@ -117,13 +114,14 @@
 				// Sun branch
 				sceneRoot.add( objectSpin );
 				//sceneRoot.add(line3);
-				objectSpin.add(line1);
+				//objectSpin.add(line1);
 				objectSpin.add(objectMesh1);
 				objectSpin.add(objectSpin1);
 				objectSpin1.add(objectMesh2);
-				objectSpin1.add(line2);
+				//objectSpin1.add(line2);
 				objectSpin1.add(objectSpin2);
 				objectSpin2.add(objectMesh3);
+				objectSpin2.THREE.TransformHelper();
 				
 				var temp = objectSpin2.parent;
 				console.log(temp);
