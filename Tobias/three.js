@@ -34684,12 +34684,12 @@ THREE.TransformHelper = function (object) {
 	
 	console.log("I helper");
 	
-	
 	var material = new THREE.LineBasicMaterial({color: 0x0000ff});
 	
 	var temp = object.parent;
 	do{
 		var geometry = new THREE.Geometry();
+		console.log(object);
 		geometry.vertices.push(
 			object.getWorldPosition(),
 			temp.getWorldPosition()
@@ -34698,8 +34698,6 @@ THREE.TransformHelper = function (object) {
 		temp.add(line);
 		temp = temp.parent;
 	}while(temp.parent != null);
-	
-	
 	
 };
 

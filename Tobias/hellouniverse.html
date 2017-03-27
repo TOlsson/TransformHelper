@@ -29,6 +29,7 @@
 			var stillObject = new THREE.Group();
 			var objectMesh;
 			var axis = new THREE.AxisHelper(2);
+			var transform;
 			
 			var test1 = new THREE.Geometry();
 			var test2 = new THREE.Geometry();
@@ -97,16 +98,15 @@
 				//	objectSpin2.position
 				//);
 				
+				//transform = new THREE.TransformHelper(objectSpin2);
+				//objectSpin2.add(transform);
 				
-			
 				var line1 = new THREE.LineSegments(test1, testMat);
 				var line2 = new THREE.LineSegments(test2, testMat);
 				var line3 = new THREE.LineSegments(test3, testMat);
 				
 				console.log(test1);
 				console.log(test2);
-				
-				var transform = new THREE.TransformHelper(objectSpin2);
 
 				// Top-level node
 				scene.add( sceneRoot );
@@ -114,14 +114,13 @@
 				// Sun branch
 				sceneRoot.add( objectSpin );
 				//sceneRoot.add(line3);
-				//objectSpin.add(line1);
+				objectSpin.add(line1);
 				objectSpin.add(objectMesh1);
 				objectSpin.add(objectSpin1);
 				objectSpin1.add(objectMesh2);
-				//objectSpin1.add(line2);
+				objectSpin1.add(line2);
 				objectSpin1.add(objectSpin2);
 				objectSpin2.add(objectMesh3);
-				objectSpin2.THREE.TransformHelper();
 				
 				var temp = objectSpin2.parent;
 				console.log(temp);
