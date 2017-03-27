@@ -34680,23 +34680,26 @@ THREE.AxisHelper.prototype.constructor = THREE.AxisHelper;
 
 //------------------------------------------------------------------
 
-THREE.TransformHelper = function () {
+THREE.TransformHelper = function (object) {
 	
 	console.log("I helper");
 	
-	var geometry = new THREE.Geometry();
+	
 	var material = new THREE.LineBasicMaterial({color: 0x0000ff});
 	
-	var temp = this.parent;
+	var temp = object.parent;
 	do{
+		var geometry = new THREE.Geometry();
 		geometry.vertices.push(
-			this.getWorldPosition(),
+			object.getWorldPosition(),
 			temp.getWorldPosition()
 		);
+		var line = THREE.LineSegments( geometry, material );
+		temp.add(line);
 		temp = temp.parent;
 	}while(temp.parent != null);
 	
-	THREE.LineSegments( geometry, material );
+	
 	
 };
 
