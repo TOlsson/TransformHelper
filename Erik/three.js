@@ -35673,12 +35673,14 @@ THREE.SpotLightHelper.prototype.update = function () {
  * Gör en helperfunktion som skapar info angående hur många parent och childs man vill ha
  */
 
-THREE.RotHelper = function(objc, parntfunc){
-	this.rothelpers[0] = THREE.VertexNormalsHelper(objc);
+THREE.theBestHelper = function(myObj){
+
+	this.object = myObj;
+
 
 };
 
-THREE.RotHelper.prototype.update = ( function () {
+THREE.theBestHelper.prototype.update = ( function () {
 
 	return function update() {
 
@@ -35689,60 +35691,60 @@ THREE.RotHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author mrdoob / http://mrdoob.com/
- * @author WestLangley / http://github.com/WestLangley
+ *
+ *
 */
 
-THREE.VertexNormalsHelper = function ( test) {
+THREE.RotHelper = function ( myObj) {
 
-	this.object = test;
+	this.object = myObj;
 	this.cnt = 0 //only to not spam
 
 	//for rot
-	this.eulerRot = this.object.rotation;
-	this.lastrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z);
+	this.eulerRot = this.object.rotation; //The rot of the object
+	this.latestrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //The leatestrot
+	this.hasRot = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
 
-	this.PeulerRot = test.parent.rotation;
-	this.Plastrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
+	//Only parent
+	// this.PeulerRot = test.parent.rotation;
+	// this.Plastrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
 
 	//for time
 	var date = new Date();
 	this.startTime = date.getTime();
-	this.lasttime = date.getTime();
+	this.latesttime = date.getTime();
 
 
-	//Test med vertices
-	/*this.object = test;
-	//this.totrot = this.object.rotation;
-	//this.matris = this.object.matrix.extractRotation(this.object.matrix);
-	this.matrii = new THREE.Matrix4();
-	this.matrii.extractRotation(test.matrix);
-	//this.totrot = object.getWorldPosition();
-	diffrot = this.totrot;
+				//Test med vertices
+				/*this.object = test;
+				//this.totrot = this.object.rotation;
+				//this.matris = this.object.matrix.extractRotation(this.object.matrix);
+				this.matrii = new THREE.Matrix4();
+				this.matrii.extractRotation(test.matrix);
+				//this.totrot = object.getWorldPosition();
+				diffrot = this.totrot;
 
 
-	console.log(this.matrii);*/
+				console.log(this.matrii);*/
 
-	//console.log(this.eulerRot.y);
+				//console.log(this.eulerRot.y);
 
-		/*var geometry = new THREE.Geometry();
-		geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
-		geometry.vertices.push(new THREE.Vector3(0, 10, 0));
-		geometry.vertices.push(new THREE.Vector3(10, 0, 0));
-		var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+				/*var geometry = new THREE.Geometry();
+				geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
+				geometry.vertices.push(new THREE.Vector3(0, 10, 0));
+				geometry.vertices.push(new THREE.Vector3(10, 0, 0));
+				var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
 
-		var line = new THREE.Line(geometry, material);*/
+				var line = new THREE.Line(geometry, material);*/
 
-
-	this.matrixAutoUpdate = true;
 	this.update();
 
 };
 
-THREE.VertexNormalsHelper.prototype = Object.create( THREE.LineSegments.prototype );
-THREE.VertexNormalsHelper.prototype.constructor = THREE.VertexNormalsHelper;
+THREE.RotHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.RotHelper.prototype.constructor = THREE.RotHelper;
 
-THREE.VertexNormalsHelper.prototype.update = ( function () {
+THREE.RotHelper.prototype.update = ( function () {
 	
 	return function update() {
 
@@ -35751,38 +35753,40 @@ THREE.VertexNormalsHelper.prototype.update = ( function () {
 
 		//Variables that checks the rotation.
 		var totrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z);
-		var diffrot = new THREE.Vector3((totrot.x-this.lastrot.x), (totrot.y-this.lastrot.y), (totrot.z-this.lastrot.z));
+		var diffrot = new THREE.Vector3((totrot.x-this.latestrot.x), (totrot.y-this.latestrot.y), (totrot.z-this.latestrot.z));
+
+		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+
 
 		//parent rot
-		var Ptotrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
-		var Pdiffrot = new THREE.Vector3((Ptotrot.x-this.Plastrot.x), (Ptotrot.y-this.Plastrot.y), (Ptotrot.z-this.Plastrot.z));
+		// var Ptotrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
+		// var Pdiffrot = new THREE.Vector3((Ptotrot.x-this.Plastrot.x), (Ptotrot.y-this.Plastrot.y), (Ptotrot.z-this.Plastrot.z));
 
 		//Date and time to check the speed and not rot
 		var date = new Date();
-		var difftime = date.getTime()-this.lasttime;
+		var difftime = date.getTime()-this.latesttime;
 		var elapsedTime = date.getTime() - this.startTime;
 
-
-		//Ony to nott spam console
+		//Only to nott spam console
 		this.cnt++
 
+		//Only to print controll
 		if(this.cnt == 100){
-			console.log(diffrot.divideScalar(difftime/1000));
-			console.log("")
-			console.log(Pdiffrot.divideScalar(difftime/1000));
-			console.log("|-------------------------|")
+			//console.log(diffrot.divideScalar(difftime/1000));
+			console.log(this.hasRot.x + ", " + this.hasRot.y + ", " + this.hasRot.z);
 			this.cnt = 0;
 		}
 
 
-		this.lasttime = date.getTime();
-		this.lastrot.x = this.eulerRot.x;
-		this.lastrot.y = this.eulerRot.y;
-		this.lastrot.z = this.eulerRot.z;
+		//To update the current rot as the latest
+		this.latesttime = date.getTime();
+		this.latestrot.x = this.eulerRot.x;
+		this.latestrot.y = this.eulerRot.y;
+		this.latestrot.z = this.eulerRot.z;
 
-		this.Plastrot.x = this.PeulerRot.x;
-		this.Plastrot.y = this.PeulerRot.y;
-		this.Plastrot.z = this.PeulerRot.z;
+		//this.Plastrot.x = this.PeulerRot.x;
+		//this.Plastrot.y = this.PeulerRot.y;
+		//this.Plastrot.z = this.PeulerRot.z;
 
 		return this;
 
