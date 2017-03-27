@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Three.js Planetary system</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+
+		<div id="container">
+			<div id="infotext" style="position: absolute;
+    color: orange;">
+				<span id="rad">0 rad/s</span>
+				<br>
+				<span id="avgrad">0 avg rad/s</span>
+				<br>
+				<span id="fps">0 fps</span>
+			</div>
+		</div>
+
+		<!-- <script src="three.min.js"></script> -->
+		<script src="three.js"></script>
+		<script>
+			// Lots of global variables. (This is JavaScript. No use complaining.)
+			var values;
+			var container;
+			var camera, scene, renderer;
+			
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;			
+			
+			// Object3D ("Group") nodes and Mesh nodes
+			var sceneRoot = new THREE.Group();
+			var objectSpin = new THREE.Group();
+			var objectMesh;
+			var helper;
+			var rotspeed = 0.03;
+
+			
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			
+			function init() {
+
+
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
+				camera.position.z = 10;
+
+				scene = new THREE.Scene();
+								
+				// Mesh
+				var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
+				var materialBox = new THREE.MeshBasicMaterial();
+				materialBox.wireframe = true;
+				objectMesh = new THREE.Mesh( geometryBox, materialBox );
+
+
+
+				// Top-level node
+				scene.add( sceneRoot );
+
+				// Sun branch
+				sceneRoot.add( objectSpin );
+				objectSpin.add( objectMesh );
+
+				helper = new THREE.VertexNormalsHelper( objectMesh);
+
+				//sceneRoot.add(helper);
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0x000000 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+			}
+
+			
+			function render() {
+
+				window.onkeydown = function (e) {
+					var code = e.keyCode ? e.keyCode : e.which;
+					if (code === 38) { //up key
+						rotspeed += 0.01;
+					} else if (code === 40) { //down key
+						rotspeed -= 0.01;
+					}
+				};
+
+				// Set up the camera
+				camera.position.x = 0;
+				camera.position.y = 2;//-mouseY*10;
+				camera.lookAt( scene.position );
+
+				// Perform animations
+				objectMesh.rotation.y += rotspeed;
+				//objectMesh.rotation.x += 0.008;
+				//objectMesh.rotation.z += 0.02;
+				objectMesh.position.x = 2;
+				objectSpin.rotation.y += 0.02
+
+				helper.update();
+//				document.getElementById("rad").textContent = (values.x + "rad/s");
+//				document.getElementById("avgrad").textContent = (values.y + "avg rad/s");
+//				document.getElementById("fps").textContent = (values.z + "fps");
+
+				// Render the scene
+				renderer.render( scene, camera );
+			}
+
+
+			function animate() {
+				requestAnimationFrame( animate ); // Request to be called again for next frame
+				render();
+			}
+
+			
+			init();    // Set up the scene
+			animate(); // Enter an infinite loop
+			
+		</script>
+	</body>
+</html>
