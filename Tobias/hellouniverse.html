@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Three.js Planetary system</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<!-- <script src="three.min.js"></script> -->
+		<script src="three.js"></script>
+		<script>
+			// Lots of global variables. (This is JavaScript. No use complaining.)
+			var container;
+			var camera, scene, renderer;
+			
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;			
+			
+			// Object3D ("Group") nodes and Mesh nodes
+			var sceneRoot = new THREE.Group();
+			var objectSpin = new THREE.Group();
+			var objectSpin1 = new THREE.Group();
+			var objectSpin2 = new THREE.Group();
+			var stillObject = new THREE.Group();
+			var objectMesh;
+			var axis = new THREE.AxisHelper(2);
+			
+			var test1 = new THREE.Geometry();
+			var test2 = new THREE.Geometry();
+			var test3 = new THREE.Geometry();
+			//test.vertices.push(
+				//new THREE.Vector3(0,0,0),
+				//new THREE.Vector3(1,1,1),
+				//new THREE.Vector3(0,0,0)
+			//);
+			
+			var testMat =  new THREE.LineBasicMaterial({color: 0x0000ff});
+			
+			var t = 0;
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			
+			function init() {
+			
+				objectSpin.quaternion.set(0.1,0,0,1);
+				
+				objectSpin1.position.x = 4;
+				objectSpin2.position.x = 2;
+				
+				
+				
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
+				camera.position.z = 10;
+
+				scene = new THREE.Scene();
+								
+				// Mesh
+				var geometryBox = new THREE.BoxGeometry( 1, 1, 1 );
+				var materialBox = new THREE.MeshBasicMaterial();
+				materialBox.wireframe = true;
+				materialBox.color = 0x000000;
+				objectMesh1 = new THREE.Mesh( geometryBox, materialBox );
+				objectMesh2 = new THREE.Mesh( geometryBox, materialBox );
+				objectMesh3 = new THREE.Mesh( geometryBox, materialBox );
+				
+				//test1.vertices.push(
+				//	objectSpin.getWorldPosition(),
+				//	objectSpin1.getWorldPosition(),
+				//	objectSpin2.getWorldPosition()
+				//);
+				
+				
+				test1.vertices.push(
+					objectSpin.getWorldPosition(),
+					objectSpin1.getWorldPosition()
+				);
+				
+				test2.vertices.push(
+					objectSpin.getWorldPosition(),
+					objectSpin2.getWorldPosition()
+				);
+				
+				//test3.vertices.push(
+					//objectSpin.position,
+				//	objectSpin1.position,
+				//	objectSpin2.position
+				//);
+				
+				
+			
+				var line1 = new THREE.LineSegments(test1, testMat);
+				var line2 = new THREE.LineSegments(test2, testMat);
+				var line3 = new THREE.LineSegments(test3, testMat);
+				
+				console.log(test1);
+				console.log(test2);
+
+				// Top-level node
+				scene.add( sceneRoot );
+
+				// Sun branch
+				sceneRoot.add( objectSpin );
+				//sceneRoot.add(line3);
+				objectSpin.add(line1);
+				objectSpin.add(objectMesh1);
+				objectSpin.add(objectSpin1);
+				objectSpin1.add(objectMesh2);
+				objectSpin1.add(line2);
+				objectSpin1.add(objectSpin2);
+				objectSpin2.add(objectMesh3);
+				
+				var temp = objectSpin2.parent;
+				console.log(temp);
+				var asdjka = 0;
+				do{
+					test3.vertices.push(
+						temp.position
+					);
+					temp = temp.parent;
+					asdjka = asdjka + 1;
+					console.log(asdjka);
+				}while(temp.parent != null);
+				
+				test3.name = "tjolahop";
+				console.log(test3);
+				
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0xffffff );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				
+				objectSpin.name = "Object 1";
+				objectSpin1.name = "Object 2";
+				objectSpin2.name = "Object 3";
+				sceneRoot.name = "Scenrot";
+				line1.name = "Line 1";
+				line2.name = "Line 2";
+				console.log(objectSpin2);
+				console.log(sceneRoot.children.length);
+				console.log(sceneRoot.children[0].children);
+				if(sceneRoot.isObject == true){
+					console.log("weeoo");
+				}else if(sceneRoot.isObject == false){
+					console.log("lol");
+				}
+				console.log(objectSpin1.rotation);
+				
+			}
+
+			
+			function render() {			
+
+				t = (t + 0.02) % 1;
+				// Set up the camera
+				camera.position.x = 0;
+				camera.position.y = -mouseY*10;
+				camera.lookAt( scene.position );
+
+				// Perform animations
+				objectSpin.rotation.y += 0.01;
+				objectSpin1.rotation.y += 0.02;
+				
+				// Render the scene
+				renderer.render( scene, camera );
+			}
+
+
+			function animate() {
+				requestAnimationFrame( animate ); // Request to be called again for next frame
+				render();
+			}
+
+			
+			init();    // Set up the scene
+			animate(); // Enter an infinite loop
+			
+		</script>
+	</body>
+</html>
