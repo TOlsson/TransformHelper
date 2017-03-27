@@ -34678,6 +34678,35 @@ THREE.AxisHelper = function ( size ) {
 THREE.AxisHelper.prototype = Object.create( THREE.LineSegments.prototype );
 THREE.AxisHelper.prototype.constructor = THREE.AxisHelper;
 
+//------------------------------------------------------------------
+
+THREE.TransformHelper = function () {
+	
+	console.log("I helper");
+	
+	var geometry = new THREE.Geometry();
+	var material = new THREE.LineBasicMaterial({color: 0x0000ff});
+	
+	var temp = this.parent;
+	do{
+		geometry.vertices.push(
+			this.getWorldPosition(),
+			temp.getWorldPosition()
+		);
+		temp = temp.parent;
+	}while(temp.parent != null);
+	
+	THREE.LineSegments( geometry, material );
+	
+};
+
+THREE.TransformHelper.prototype = Object.create( THREE.LineSegments.prototype );
+THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
+
+
+//-------------------------------------------------------------------
+
+
 // File:src/extras/helpers/ArrowHelper.js
 
 /**
