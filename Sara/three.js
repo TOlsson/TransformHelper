@@ -35762,20 +35762,19 @@ THREE.transformHelper = function ( object ) {
 	
 	this.theText = text2; // save as a object variable
 	
-	function analyzeParents()
-	{
-		for( i = 0; i < knas; i++ )
+	
+	// Analyze Parents
+	for( i = 0; i < this.numParents; i++ )
 		{
-			if( i == (knas-1) )  // last iteration.. 
+			if( i == (this.numParents-1) )  // last iteration.. 
 				text2.innerHTML += "parent " + (i+1) + " is the scene root <br>" ;
-			else if( isSamePosition( object, knasarray[i] ) )
+			else if( isSamePosition( object, this.parents[i] ) )
 				text2.innerHTML += "parent " + (i+1) + " has the same position <br>" ;
 			else
 				text2.innerHTML += "parent " + (i+1) + " has not the same translation <br>" ;
-		}
 	}
-		
-	analyzeParents();
+	
+	
 	
 	// hehe this is not a general solution.. 
 	var distToParent = object.getWorldPosition().distanceTo(object.parent.parent.getWorldPosition()); // calculate distance to parent
