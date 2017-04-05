@@ -35752,8 +35752,11 @@ THREE.RotHelper.prototype.update = ( function () {
 		// var mat = new THREE.Vector3;
 
 		//Variables that checks the rotation.
-		var totrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z);
-		var diffrot = new THREE.Vector3((totrot.x-this.latestrot.x), (totrot.y-this.latestrot.y), (totrot.z-this.latestrot.z));
+		//var totrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //Dont need totrot
+		//var diffrot = new THREE.Vector3((totrot.x-this.latestrot.x), (totrot.y-this.latestrot.y), (totrot.z-this.latestrot.z));
+		var diffrot = new THREE.Vector3;
+		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
+
 
 		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
 
