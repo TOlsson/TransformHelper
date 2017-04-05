@@ -35738,6 +35738,8 @@ THREE.transformHelper = function ( object ) {
 	
 	THREE.Object3D.call( this ); // inherit
 	
+	// console.log(object);
+	
 	this.object = object; // save the object who asked for a transformHelper !
 	
 	this.numParents = countParents(object,0); // count number of parents
@@ -35795,13 +35797,85 @@ THREE.transformHelper = function ( object ) {
 	color: 0xffadfd
 	});
 	
+
+	
+	var radius  = 1,
+    segments = 64,
+	myRed = new THREE.LineBasicMaterial( { color: 0xff0000 } ),
+	myGreen = new THREE.LineBasicMaterial( { color: 0x00ff00 } ),
+	myBlue = new THREE.LineBasicMaterial( { color: 0x0000ff } ),
+    geometry = new THREE.CircleGeometry( radius, segments ),
+	redCircle = new THREE.Line( geometry,  myRed ),
+	greenCircle = new THREE.Line( geometry,  myGreen ),
+	blueCircle = new THREE.Line( geometry,  myBlue );
+	
+	
+	var geometryS = new THREE.SphereGeometry( 0.1, 32, 32 );
+	var materialS = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
+	var sphere = new THREE.Mesh( geometryS, materialS );
+	
+	sphere.position.x = 1;
+	// Remove center vertex (line to center)
+	geometry.vertices.shift();
+	
+	greenCircle.rotation = new THREE.Vector3( 0, 0, 0 );
+	redCircle.rotation = new THREE.Vector3( 0, 0, 0 );
+	blueCircle.rotation = new THREE.Vector3( 0, 0, 0 );
+	
+	
+	greenCircle.rotation.y = Math.PI / 2;
+	blueCircle.rotation.x = Math.PI / 2;
+	
+	console.log(sphere);
+	console.log(redCircle);
+	console.log(greenCircle);
+	console.log(blueCircle); // denna roterar u (hårdkodat)
+
+	object.parent.add( redCircle );
+	object.parent.add( greenCircle ); 
+	object.parent.add( blueCircle );
+	this.add( sphere );
+	
+	// parent rot vis 
+	
+	console.log( object.parent.parent.children[1].geometry.boundingSphere.radius)
+
+	//console.log(sphere);
+	// .computeBoundingSphere()
+	
+	var  geometryP = new THREE.CircleGeometry( object.parent.parent.children[1].geometry.boundingSphere.radius , segments ),
+	redCircleP = new THREE.Line( geometryP,  myRed ),
+	greenCircleP = new THREE.Line( geometryP,  myGreen ),
+	blueCircleP = new THREE.Line( geometryP,  myBlue );
+	
+	geometryP.vertices.shift();
+	
+	greenCircleP.rotation.y = Math.PI / 2 ;
+	blueCircleP.rotation.x = Math.PI / 2;
+	
+	var geometrySP = new THREE.SphereGeometry( 0.1, 32, 32 );
+	var materialSP = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
+	var sphereP = new THREE.Mesh( geometrySP, materialSP );
+	
+	sphereP.position.x = -object.parent.parent.children[1].geometry.boundingSphere.radius;
+	
+	object.parent.parent.parent.add( redCircleP );
+	object.parent.parent.parent.add( greenCircleP ); 
+	object.parent.parent.parent.add( blueCircleP );
+	object.parent.parent.add( sphereP );
+	
+		
+	
 	// an arrow to parents parent.. not general solution
 	var parentLine = new THREE.Geometry();
 		parentLine.vertices.push(
 		new THREE.Vector3( 0, 0, 0 ),
 		new THREE.Vector3( distToParent, 0, 0 )
 		
-	);
+	); 
+	
+	
+	
 
 	/*
 	var pO = object.parent.parent.position.x; 
@@ -35833,10 +35907,10 @@ THREE.transformHelper = function ( object ) {
 	var lineToParent = new THREE.Line( parentLine, myPink );
 	
 	// display lines/arrows
-	this.add( this.arrY );
+	// this.add( this.arrY );
 	// object.parent.add(this.arrY);
 	object.parent.parent.add( lineToParent );
-	object.parent.parent.add( line2 );
+	// object.parent.parent.add( line2 );
 
 	document.body.appendChild(text2); // add HTML
 	
@@ -35889,7 +35963,7 @@ THREE.transformHelper.prototype.update = function () {
 		// utskriften av information behöver förbättras !
 			if( this.roty == true  )
 			{
-				this.add(this.arrY);
+				//this.add(this.arrY);
 				
 				if(this.dummy == true) // just write once.. 
 				{
@@ -35900,7 +35974,7 @@ THREE.transformHelper.prototype.update = function () {
 			}
 			else
 			{
-				this.remove(this.arrY);
+				//this.remove(this.arrY);
 			} 
 				
         return this;

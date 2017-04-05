@@ -84,6 +84,7 @@
 				var materialBox = new THREE.MeshBasicMaterial();
 				materialBox.wireframe = true;
 				objectMesh = new THREE.Mesh( geometryBox, materialBox );
+				objectMesh.name = "hello";
 				
 				// Mesh 2
 				var geometryBox2 = new THREE.BoxGeometry( 1, 1, 1 );
@@ -143,8 +144,8 @@
 
 				// Perform animations
 				objectSpin.rotation.y += 0.02;
-				object2Spin.rotation.y += 0.01;
-				object2Spin.rotation.z += 0.02;
+				object2Spin.rotation.y += 0.02;
+				// object2Spin.rotation.z += 0.02; // crazy rot
 				
 				
 				if( runUpdate == true )

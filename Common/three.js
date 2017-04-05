@@ -35871,8 +35871,16 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 
 
 
+// returns an array with all parent objects, arr should be an empty array
+function getParents(obj, arr) {
 
-
+	if( obj.parent != null )
+	{
+		arr.push(obj.parent);
+		return getParents(obj.parent, arr );
+	}
+	else return arr;
+};
 
 
 // File:xxx/y/zz/TransFormHelper.js
@@ -35885,6 +35893,9 @@ THREE.TransFormHelper = function ( myObj ){
 
 	this.object = myObj;
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
+	
+	this.parents = getParents(object, new Array() ); // collect all parent in an array
+	
 }
 
 THREE.TransFormHelper.prototype = Object.create( THREE.Object3D.prototype );
