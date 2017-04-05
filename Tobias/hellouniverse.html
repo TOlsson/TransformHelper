@@ -57,8 +57,6 @@
 				objectSpin1.position.x = 4;
 				objectSpin2.position.x = 2;
 				
-				
-				
 				container = document.getElementById( 'container' );
 
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
@@ -93,7 +91,7 @@
 				);
 				
 				//test3.vertices.push(
-					//objectSpin.position,
+				//	objectSpin.position,
 				//	objectSpin1.position,
 				//	objectSpin2.position
 				//);
@@ -130,7 +128,7 @@
 						temp.position
 					);
 					temp = temp.parent;
-					asdjka = asdjka + 1;
+					asdjka = asdjka+1;
 					console.log(asdjka);
 				}while(temp.parent != null);
 				
@@ -163,11 +161,11 @@
 				console.log(objectSpin1.rotation);
 				
 			}
-
+			
+			var toBig = false;
 			
 			function render() {			
 
-				t = (t + 0.02) % 1;
 				// Set up the camera
 				camera.position.x = 0;
 				camera.position.y = -mouseY*10;
@@ -175,7 +173,11 @@
 
 				// Perform animations
 				objectSpin.rotation.y += 0.01;
-				objectSpin1.rotation.y += 0.02;
+				objectSpin1.rotation.y += 0.02;				
+				
+				//console.log(objectSpin1.getWorldScale().x);
+				//console.log(objectSpin2.getWorldScale());
+				//console.log(test2);
 				
 				// Render the scene
 				renderer.render( scene, camera );
