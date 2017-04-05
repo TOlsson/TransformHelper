@@ -35704,6 +35704,8 @@ THREE.RotHelper = function ( myObj) {
 	this.eulerRot = this.object.rotation; //The rot of the object
 	this.latestrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //The leatestrot
 	this.hasRot = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
+	this.rotvelocityM = new THREE.Vector3(0,0,0); //A vector that holds the Momentan rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+	this.rotvelocityA = new THREE.Vector3(0,0,0); //A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
 
 	//Only parent
 	// this.PeulerRot = test.parent.rotation;

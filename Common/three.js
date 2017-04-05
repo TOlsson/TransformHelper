@@ -35946,7 +35946,6 @@ THREE.RotHelper.prototype.update = ( function () {
 
 		//A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
 		this.rotvelocityA = this.eulerRot.divideScalar(elapsedTime);
-		this.rotvelocityA = this.eulerRot.divideScalar(elapsedTime);
 
 
 		//To update the current rot as the latest so we can compare it with the new next time.
