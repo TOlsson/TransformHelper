@@ -34684,25 +34684,42 @@ THREE.TransformHelper = function (object) {
 	
 	console.log("I helper");
 	
-	var material = new THREE.LineBasicMaterial({color: 0x0000ff});
+	THREE.Object3D.call(this);
 	
-	var temp = object.parent;
-	do{
-		var geometry = new THREE.Geometry();
-		console.log(object);
-		geometry.vertices.push(
-			object.getWorldPosition(),
-			temp.getWorldPosition()
-		);
-		var line = THREE.LineSegments( geometry, material );
-		temp.add(line);
-		temp = temp.parent;
-	}while(temp.parent != null);
+	this.object = object;
+	
+	this.getWorldScale();
+	// var material = new THREE.LineBasicMaterial({color: 0x0000ff});
+	
+	// var temp = object.parent;
+	// do{
+		// var geometry = new THREE.Geometry();
+		// console.log(object);
+		// geometry.vertices.push(
+			// object.getWorldPosition(),
+			// temp.getWorldPosition()
+		// );
+		// var line = THREE.LineSegments( geometry, material );
+		// temp.add(line);
+		// temp = temp.parent;
+	// }while(temp.parent != null);
+	
+	
 	
 };
 
 THREE.TransformHelper.prototype = Object.create( THREE.LineSegments.prototype );
 THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
+
+THREE.TransformHelper.prototype.update = function () {
+
+	return function () {
+		
+	};
+	
+
+
+}();
 
 
 //-------------------------------------------------------------------
