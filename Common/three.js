@@ -35894,7 +35894,7 @@ THREE.TransFormHelper = function ( myObj ){
 	this.object = myObj;
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
 	
-	this.parents = getParents(object, new Array() ); // collect all parent in an array
+	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
 	
 }
 
