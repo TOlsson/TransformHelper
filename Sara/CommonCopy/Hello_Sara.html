@@ -36,6 +36,9 @@
 	// Object3D ("Group") nodes and Mesh nodes
 	var sceneRoot = new THREE.Group();
 	var objectSpin = new THREE.Group();
+	var object2Trans = new THREE.Group();
+	var object2Spin = new THREE.Group();
+	
 	var objectMesh;
 	var helper;
 	var rotspeedx = 0;
@@ -57,6 +60,7 @@
 
 	function init() {
 
+		object2Trans.position.x = 5;
 
 		container = document.getElementById( 'container' );
 
@@ -70,7 +74,12 @@
 		var materialBox = new THREE.MeshBasicMaterial();
 		materialBox.wireframe = true;
 		objectMesh = new THREE.Mesh( geometryBox, materialBox );
-
+		
+		// Mesh 2
+		var geometryBox2 = new THREE.BoxGeometry( 1, 1, 1 );
+		var materialBox2 = new THREE.MeshBasicMaterial();
+		materialBox2.wireframe = true;
+		object2Mesh = new THREE.Mesh( geometryBox2, materialBox2 );
 
 
 		// Top-level node
@@ -78,7 +87,10 @@
 
 		// Sun branch
 		sceneRoot.add( objectSpin );
+		objectSpin.add( object2Trans );
 		objectSpin.add( objectMesh );
+		object2Trans.add( object2Spin );
+		object2Spin.add( object2Mesh );
 
 		helper = new THREE.TransformHelper( objectMesh);
 
@@ -132,9 +144,9 @@
 		objectMesh.rotation.x += rotspeedx;
 		objectMesh.rotation.z += rotspeedz;
 		
-		objectMesh.scale.x += 0.01;
-		objectMesh.scale.y += 0.01;
-		objectMesh.scale.z += 0.01;
+	//	objectMesh.scale.x += 0.01;
+	//	objectMesh.scale.y += 0.01;
+	//	objectMesh.scale.z += 0.01;
 
 		objectMesh.position.x = 2;
 		objectSpin.rotation.y += 0.02
