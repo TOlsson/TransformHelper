@@ -35669,126 +35669,146 @@ THREE.SpotLightHelper.prototype.update = function () {
 }();
 
 // File:src/extras/helpers/VertexNormalsHelper.js
+
 /**
- * Gör en helperfunktion som skapar info angående hur många parent och childs man vill ha
- */
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+*/
 
-THREE.theBestHelper = function(myObj){
+THREE.VertexNormalsHelper = function ( object, size, hex, linewidth ) {
 
-	this.object = myObj;
+	this.object = object;
 
+	this.size = ( size !== undefined ) ? size : 1;
 
-};
+	var color = ( hex !== undefined ) ? hex : 0xff0000;
 
-THREE.theBestHelper.prototype.update = ( function () {
+	var width = ( linewidth !== undefined ) ? linewidth : 1;
 
-	return function update() {
+	//
 
-		return this;
+	var nNormals = 0;
+
+	var objGeometry = this.object.geometry;
+
+	if ( objGeometry instanceof THREE.Geometry ) {
+
+		nNormals = objGeometry.faces.length * 3;
+
+	} else if ( objGeometry instanceof THREE.BufferGeometry ) {
+
+		nNormals = objGeometry.attributes.normal.count
 
 	}
 
-}() );
+	//
 
-/**
- *
- *
-*/
+	var geometry = new THREE.BufferGeometry();
 
-THREE.RotHelper = function ( myObj) {
+	var positions = new THREE.Float32Attribute( nNormals * 2 * 3, 3 );
 
-	this.object = myObj;
-	this.cnt = 0 //only to not spam
+	geometry.addAttribute( 'position', positions );
 
-	//for rot
-	this.eulerRot = this.object.rotation; //The rot of the object
-	this.latestrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //The leatestrot
-	this.hasRot = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
-	this.rotvelocityM = new THREE.Vector3(0,0,0); //A vector that holds the Momentan rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
-	this.rotvelocityA = new THREE.Vector3(0,0,0); //A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+	THREE.LineSegments.call( this, geometry, new THREE.LineBasicMaterial( { color: color, linewidth: width } ) );
 
-	//Only parent
-	// this.PeulerRot = test.parent.rotation;
-	// this.Plastrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
+	//
 
-	//for time
-	var date = new Date();
-	this.startTime = date.getTime();
-	this.latesttime = date.getTime();
-
-
-				//Test med vertices
-				/*this.object = test;
-				//this.totrot = this.object.rotation;
-				//this.matris = this.object.matrix.extractRotation(this.object.matrix);
-				this.matrii = new THREE.Matrix4();
-				this.matrii.extractRotation(test.matrix);
-				//this.totrot = object.getWorldPosition();
-				diffrot = this.totrot;
-
-
-				console.log(this.matrii);*/
-
-				//console.log(this.eulerRot.y);
-
-				/*var geometry = new THREE.Geometry();
-				geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
-				geometry.vertices.push(new THREE.Vector3(0, 10, 0));
-				geometry.vertices.push(new THREE.Vector3(10, 0, 0));
-				var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
-
-				var line = new THREE.Line(geometry, material);*/
+	this.matrixAutoUpdate = false;
 
 	this.update();
 
 };
 
-THREE.RotHelper.prototype = Object.create( THREE.Object3D.prototype );
-THREE.RotHelper.prototype.constructor = THREE.RotHelper;
+THREE.VertexNormalsHelper.prototype = Object.create( THREE.LineSegments.prototype );
+THREE.VertexNormalsHelper.prototype.constructor = THREE.VertexNormalsHelper;
 
-THREE.RotHelper.prototype.update = ( function () {
-	
+THREE.VertexNormalsHelper.prototype.update = ( function () {
+
+	var v1 = new THREE.Vector3();
+	var v2 = new THREE.Vector3();
+	var normalMatrix = new THREE.Matrix3();
+
 	return function update() {
 
-		//this.matrii.extractRotation(this.object.matrix);
-		// var mat = new THREE.Vector3;
+		var keys = [ 'a', 'b', 'c' ];
 
-		//Variables that checks the rotation.
-		//var totrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //Dont need totrot
-		//var diffrot = new THREE.Vector3((totrot.x-this.latestrot.x), (totrot.y-this.latestrot.y), (totrot.z-this.latestrot.z));
+		this.object.updateMatrixWorld( true );
 
-		var diffrot = new THREE.Vector3;
-		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
+		normalMatrix.getNormalMatrix( this.object.matrixWorld );
 
+		var matrixWorld = this.object.matrixWorld;
 
-		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+		var position = this.geometry.attributes.position;
 
+		//
 
-		//parent rot
-		// var Ptotrot = new THREE.Vector3(this.PeulerRot.x, this.PeulerRot.y, this.PeulerRot.z);
-		// var Pdiffrot = new THREE.Vector3((Ptotrot.x-this.Plastrot.x), (Ptotrot.y-this.Plastrot.y), (Ptotrot.z-this.Plastrot.z));
+		var objGeometry = this.object.geometry;
 
-		//Date and time to check the speed and not rot
-		var date = new Date();
-		var difftime = date.getTime()-this.latesttime;
-		var elapsedTime = date.getTime() - this.startTime;
+		if ( objGeometry instanceof THREE.Geometry ) {
 
-		//Only to nott spam console
-		this.cnt++
+			var vertices = objGeometry.vertices;
 
-		//Only to print controll
-		if(this.cnt == 100){
-			//console.log(diffrot.divideScalar(difftime/1000));
-			console.log(this.hasRot.x + ", " + this.hasRot.y + ", " + this.hasRot.z);
-			this.cnt = 0;
+			var faces = objGeometry.faces;
+
+			var idx = 0;
+
+			for ( var i = 0, l = faces.length; i < l; i ++ ) {
+
+				var face = faces[ i ];
+
+				for ( var j = 0, jl = face.vertexNormals.length; j < jl; j ++ ) {
+
+					var vertex = vertices[ face[ keys[ j ] ] ];
+
+					var normal = face.vertexNormals[ j ];
+
+					v1.copy( vertex ).applyMatrix4( matrixWorld );
+
+					v2.copy( normal ).applyMatrix3( normalMatrix ).normalize().multiplyScalar( this.size ).add( v1 );
+
+					position.setXYZ( idx, v1.x, v1.y, v1.z );
+
+					idx = idx + 1;
+
+					position.setXYZ( idx, v2.x, v2.y, v2.z );
+
+					idx = idx + 1;
+
+				}
+
+			}
+
+		} else if ( objGeometry instanceof THREE.BufferGeometry ) {
+
+			var objPos = objGeometry.attributes.position;
+
+			var objNorm = objGeometry.attributes.normal;
+
+			var idx = 0;
+
+			// for simplicity, ignore index and drawcalls, and render every normal
+
+			for ( var j = 0, jl = objPos.count; j < jl; j ++ ) {
+
+				v1.set( objPos.getX( j ), objPos.getY( j ), objPos.getZ( j ) ).applyMatrix4( matrixWorld );
+
+				v2.set( objNorm.getX( j ), objNorm.getY( j ), objNorm.getZ( j ) );
+
+				v2.applyMatrix3( normalMatrix ).normalize().multiplyScalar( this.size ).add( v1 );
+
+				position.setXYZ( idx, v1.x, v1.y, v1.z );
+
+				idx = idx + 1;
+
+				position.setXYZ( idx, v2.x, v2.y, v2.z );
+
+				idx = idx + 1;
+
+			}
+
 		}
 
-
-		//To update the current rot as the latest
-		this.latesttime = date.getTime();
-		this.latestrot.x = this.eulerRot.x;
-		this.latestrot.y = this.eulerRot.y;
-		this.latestrot.z = this.eulerRot.z;
+		position.needsUpdate = true;
 
 		return this;
 
@@ -35815,6 +35835,254 @@ THREE.WireframeHelper = function ( object, hex ) {
 
 THREE.WireframeHelper.prototype = Object.create( THREE.LineSegments.prototype );
 THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// returns an array with all parent objects, arr should be an empty array
+function getParents(obj, arr) {
+
+	if( obj.parent != null )
+	{
+		arr.push(obj.parent);
+		return getParents(obj.parent, arr );
+	}
+	else return arr;
+};
+
+
+// File:xxx/y/zz/TransFormHelper.js
+
+/**
+ * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
+ */
+
+THREE.TransformHelper = function ( myObj ){
+
+	this.object = myObj;
+	this.object.rot = new Array();
+	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
+	this.object.scale = new THREE.ScaleHelper(this.object.scale);
+	
+	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
+	for (i = 0; i < this.parents.length; i++){
+		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+	}
+}
+
+THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
+
+THREE.TransformHelper.prototype.update = ( function () {
+
+	return function update() {
+		// for(var i = 0; i < this.object.rot.length; i++){
+		// 	this.object.rot[i].update();
+		// 	console.log(this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+		// }
+		this.object.rot[0].update();
+		console.log("Normal" + this.object.rot[0].hasRot.x + ", " + this.object.rot[0].hasRot.y + ", " + this.object.rot[0].hasRot.z);
+		this.object.rot[1].update();
+		console.log("Parent" + this.object.rot[1].hasRot.x + ", " + this.object.rot[1].hasRot.y + ", " + this.object.rot[1].hasRot.z);
+	}
+
+		//	obj.update();
+			//console.log(obj.hasRot.x + ", " + obj.hasRot.y + ", " + obj.hasRot.z);
+		//	console.log(obj);
+		//}
+		//this.object.rot.update();
+		//
+	//}
+
+}() );
+
+/**
+ * @author Erik Åkesson
+ */
+
+THREE.RotHelper = function (eulerR) {
+
+	//this.cnt = 0 //only to not spam
+
+	//for rot
+	this.eulerRot = eulerR; //The rot of the object
+	this.latestrot = new THREE.Vector3(this.eulerRot.x, this.eulerRot.y, this.eulerRot.z); //The leatestrot
+	this.hasRot = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
+	this.rotvelocityM = new THREE.Vector3(0,0,0); //A vector that holds the Momentan rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+	this.rotvelocityA = new THREE.Vector3(0,0,0); //A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+
+	//for time
+	var date = new Date();
+	this.startTime = date.getTime();
+	this.latesttime = date.getTime();
+
+	//this.update();
+
+};
+
+THREE.RotHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.RotHelper.prototype.constructor = THREE.RotHelper;
+
+THREE.RotHelper.prototype.update = ( function () {
+
+	return function update() {
+
+		var diffrot = new THREE.Vector3;
+		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
+
+		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
+		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+
+		//Date and time to check the velocity and not rot
+		var date = new Date();
+		var difftime = date.getTime()- this.latesttime; //Time since the last update
+		var elapsedTime = date.getTime() - this.startTime; ////Time since the beginning of it all
+
+		//A vector that holds the Momentan rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+		this.rotvelocityM = diffrot.divideScalar(difftime);
+
+		//A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
+		this.rotvelocityA = this.eulerRot.toVector3().divideScalar(elapsedTime);
+
+
+		//To update the current rot as the latest so we can compare it with the new next time.
+		this.latesttime = date.getTime();
+		this.latestrot.x = this.eulerRot.x;
+		this.latestrot.y = this.eulerRot.y;
+		this.latestrot.z = this.eulerRot.z;
+
+		return this;
+	}
+
+}() );
+
+/**
+ * @author Sara Olsson osv .. 
+ */
+
+THREE.ScaleHelper = function (scale) {
+
+	
+	//this.update();
+
+};
+
+THREE.ScaleHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.ScaleHelper.prototype.constructor = THREE.ScaleHelper;
+
+THREE.ScaleHelper.prototype.update = ( function () {
+
+	return function update() {
+
+	
+
+		return this;
+	}
+
+}() );
+
+THREE.TransHelper = function () {
+
+	
+	//this.update();
+
+};
+
+THREE.TransHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.TransHelper.prototype.constructor = THREE.TransHelper;
+
+THREE.TransHelper.prototype.update = ( function () {
+
+	return function update() {
+
+	
+
+		return this;
+	}
+
+}() );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // File:src/extras/objects/ImmediateRenderObject.js
 
