@@ -35892,10 +35892,16 @@ function getParents(obj, arr) {
 THREE.TransformHelper = function ( myObj ){
 
 	this.object = myObj;
-	this.object.rot = new THREE.RotHelper(this.object.rotation);
-	this.object.scales = new THREE.ScaleHelper(this.object.scale);
-	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
+	
+	this.object.rot = new THREE.RotHelper(this.object.rotation);
+	
+	this.object.scales = new Array(); 
+	this.object.scales.push(new THREE.ScaleHelper(this.object.scale)); // add object in array
+	
+	for (i = 0; i < this.parents.length; i++){
+		this.object.scales.push(new THREE.ScaleHelper(this.parents[i].scale)); // scale helper to all parents
+	}
 	
 }
 
@@ -35905,10 +35911,23 @@ THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
-		this.object.rot.update();
-		this.object.scales.update();
-		//console.log("Rot: " + this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
-		console.log("Scale: " + this.object.scales.hasScale.x + ", " + this.object.scales.hasScale.y + ", " + this.object.scales.hasScale.z);
+		
+		// this.object.rot.update();
+		
+		for( i = 0; i <  this.object.scales.length; i++ )
+		{
+			this.object.scales[i].update(); // update scale helper -> update hasScale values
+			//console.log(  this.object.scales[i].hasScale.length() );
+			
+			if( this.object.scales[i].hasScale.length() > 0 ) // som scale has happend
+			{
+				console.log("Scale for parent " + i + " : " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
+			}
+			
+		}
+		
+		
+		
 	}
 
 }() );
@@ -35979,8 +35998,8 @@ THREE.RotHelper.prototype.update = ( function () {
 
 THREE.ScaleHelper = function (scale) {
 
-	this.scale = scale; //The scale of the object
-	this.latestscale = new THREE.Vector3(this.scale.x, this.scale.y, this.scale.z); //The leatest scale
+	this.myscale = scale; //The scale of the object
+	this.latestscale = new THREE.Vector3(this.myscale.x, this.myscale.y, this.myscale.z); //The leatest scale
 	this.hasScale = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has a scale transform
 	
 	//this.update();
@@ -35995,15 +36014,16 @@ THREE.ScaleHelper.prototype.update = ( function () {
 	return function update() {
 
 		var diffscale = new THREE.Vector3;
-		diffscale.subVectors(this.scale, this.latestscale); //Takes the difference of totrot and latsetrot
+		diffscale.subVectors(this.myscale, this.latestscale); //Takes the difference of totrot and latsetrot
 
 		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
-		this.hasScale = new THREE.Vector3((diffscale.x != 0), (diffscale.y != 0), (diffscale.z != 0));
-
+		//this.hasScale = new THREE.Vector3((diffscale.x != 0), (diffscale.y != 0), (diffscale.z != 0));
+	    this.hasScale = new THREE.Vector3((diffscale.x > 0 || diffscale.x < 0), (diffscale.y > 0 || diffscale.y < 0), (diffscale.z > 0 || diffscale.z < 0));
+		
 		//To update the current scale as the latest so we can compare it with the new next time.
-		this.latestscale.x = this.scale.x;
-		this.latestscale.y = this.scale.y;
-		this.latestscale.z = this.scale.z;
+		this.latestscale.x = this.myscale.x;
+		this.latestscale.y = this.myscale.y;
+		this.latestscale.z = this.myscale.z;
 		
 		return this;
 	}

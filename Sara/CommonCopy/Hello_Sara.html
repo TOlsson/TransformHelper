@@ -91,8 +91,10 @@
 		objectSpin.add( objectMesh );
 		object2Trans.add( object2Spin );
 		object2Spin.add( object2Mesh );
+		
+		objectSpin.name = "Testt";
 
-		helper = new THREE.TransformHelper( objectMesh);
+		helper = new THREE.TransformHelper( object2Mesh);
 
 		//sceneRoot.add(helper);
 
@@ -106,14 +108,24 @@
 	}
 
 
+	
+
 	function render() {
 
+		
 		window.onkeydown = function (e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			if (code === 38) { //up key
-				rotspeed += 0.01;
+				//rotspeed += 0.01;
+				
+				object2Mesh.scale.x += 0.01;
+				object2Mesh.scale.y += 0.01;
+				object2Mesh.scale.z += 0.01;
 			} else if (code === 40) { //down key
-				rotspeed -= 0.01;
+				object2Mesh.scale.x -= 0.01;
+			    object2Mesh.scale.y -= 0.01;
+			    object2Mesh.scale.z -= 0.01;
+				//rotspeed -= 0.01;
 			} else if (code === 88) { //x key
 				if(!rotspeedx)
 					rotspeedx = rotspeed;
@@ -134,6 +146,22 @@
 
 		};
 
+		
+		objectSpin.scale.x += 0.001;
+		objectSpin.scale.y += 0.001;
+		objectSpin.scale.z -= 0.001;
+		
+		/*
+		if(object2Mesh.scale.x < 3 )
+		{
+				object2Mesh.scale.x += 0.01;
+				object2Mesh.scale.y += 0.01;
+				object2Mesh.scale.z += 0.01;
+		} */
+				//objectMesh.scale.x += 0.01;
+				//objectMesh.scale.y += 0.01;
+				//objectMesh.scale.z += 0.01;
+		
 		// Set up the camera
 		camera.position.x = 0;
 		camera.position.y = 2;//-mouseY*10;
@@ -144,9 +172,7 @@
 		objectMesh.rotation.x += rotspeedx;
 		objectMesh.rotation.z += rotspeedz;
 		
-	//	objectMesh.scale.x += 0.01;
-	//	objectMesh.scale.y += 0.01;
-	//	objectMesh.scale.z += 0.01;
+	
 
 		objectMesh.position.x = 2;
 		objectSpin.rotation.y += 0.02
