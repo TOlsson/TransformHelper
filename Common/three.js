@@ -35897,6 +35897,8 @@ THREE.TransformHelper = function ( myObj ){
 	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
 	
+	this.object.position = new THREE.TransHelper(this.object.position, this.parents);
+	
 }
 
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
@@ -35996,8 +35998,9 @@ THREE.ScaleHelper.prototype.update = ( function () {
 
 }() );
 
-THREE.TransHelper = function () {
-
+THREE.TransHelper = function (trans, parents) {
+	
+	
 	
 	//this.update();
 
