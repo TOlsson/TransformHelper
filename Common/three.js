@@ -35996,6 +35996,27 @@ THREE.ScaleHelper.prototype.update = ( function () {
 
 }() );
 
+THREE.TransHelper = function () {
+
+	
+	//this.update();
+
+};
+
+THREE.TransHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.TransHelper.prototype.constructor = THREE.TransHelper;
+
+THREE.TransHelper.prototype.update = ( function () {
+
+	return function update() {
+
+	
+
+		return this;
+	}
+
+}() );
+
 
 
 
