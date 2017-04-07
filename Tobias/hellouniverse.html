@@ -90,11 +90,7 @@
 					objectSpin2.position
 				);
 				
-				//test3.vertices.push(
-				//	objectSpin.position,
-				//	objectSpin1.position,
-				//	objectSpin2.position
-				//);
+				
 				
 				//transform = new THREE.TransformHelper(objectSpin2);
 				//objectSpin2.add(transform);
@@ -173,7 +169,13 @@
 
 				// Perform animations
 				objectSpin.rotation.y += 0.01;
-				objectSpin1.rotation.y += 0.02;				
+				objectSpin1.rotation.y += 0.02;	
+
+				test3.vertices.push(
+					objectSpin.position,
+					objectSpin1.position,
+					objectSpin2.position
+				);				
 				
 				//console.log(objectSpin1.getWorldScale().x);
 				//console.log(objectSpin2.getWorldScale());

@@ -36007,6 +36007,10 @@ THREE.ScaleHelper.prototype.update = ( function () {
  
 THREE.TransHelper = function (trans, parents) {
 	
+	this.position = trans;
+	this.parents = parents;
+	this.latesttrans = new THREE.Vector3(this.position.x, this.position.y, this.position.z);
+	this.hasTrans = new THREE.Vector3(0,0,0);
 	
 	//this.update();
 };
@@ -36019,7 +36023,17 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 
-	
+		var test = new THREE.Geometry();
+		this.line;
+		var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
+		
+		for(var i in parents){
+			test[i].vertices.push(
+				parents[0].position,
+				parents[i].position
+			);
+			this.line[i] = new THREE.LineSegments(test[i], material);
+		}
 
 		return this;
 	}
