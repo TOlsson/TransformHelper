@@ -55,7 +55,7 @@
 				objectSpin.quaternion.set(0.1,0,0,1);
 				
 				objectSpin1.position.x = 4;
-				objectSpin2.position.x = 2;
+				objectSpin2.position.x = -2;
 				
 				container = document.getElementById( 'container' );
 
@@ -90,7 +90,8 @@
 					objectSpin2.position
 				);
 				
-				
+				console.log(test1);
+				console.log(test2);
 				
 				//transform = new THREE.TransformHelper(objectSpin2);
 				//objectSpin2.add(transform);
@@ -99,8 +100,8 @@
 				var line2 = new THREE.LineSegments(test2, testMat);
 				var line3 = new THREE.LineSegments(test3, testMat);
 				
-				console.log(test1);
-				console.log(test2);
+				//console.log(test1);
+				//console.log(test2);
 
 				// Top-level node
 				scene.add( sceneRoot );
@@ -129,7 +130,7 @@
 				}while(temp.parent != null);
 				
 				test3.name = "tjolahop";
-				console.log(test3);
+				//console.log(test3);
 				
 
 				renderer = new THREE.WebGLRenderer();
@@ -146,13 +147,13 @@
 				sceneRoot.name = "Scenrot";
 				line1.name = "Line 1";
 				line2.name = "Line 2";
-				console.log(objectSpin2);
-				console.log(sceneRoot.children.length);
-				console.log(sceneRoot.children[0].children);
+				//console.log(objectSpin2);
+				//console.log(sceneRoot.children.length);
+				//console.log(sceneRoot.children[0].children);
 				if(sceneRoot.isObject == true){
-					console.log("weeoo");
+					//console.log("weeoo");
 				}else if(sceneRoot.isObject == false){
-					console.log("lol");
+					//console.log("lol");
 				}
 				console.log(objectSpin1.rotation);
 				
