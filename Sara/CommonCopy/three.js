@@ -35893,11 +35893,9 @@ THREE.TransformHelper = function ( myObj ){
 
 	this.object = myObj;
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
-	this.object.scale = new THREE.ScaleHelper(this.object.scale);
+	this.object.scales = new THREE.ScaleHelper(this.object.scale);
 	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
-	
-	this.object.position = new THREE.TransHelper(this.object.position, this.parents);
 	
 }
 
@@ -35908,7 +35906,9 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 		this.object.rot.update();
-		console.log(this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
+		this.object.scales.update();
+		//console.log("Rot: " + this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
+		console.log("Scale: " + this.object.scales.hasScale.x + ", " + this.object.scales.hasScale.y + ", " + this.object.scales.hasScale.z);
 	}
 
 }() );
@@ -35994,8 +35994,17 @@ THREE.ScaleHelper.prototype.update = ( function () {
 
 	return function update() {
 
-	
+		var diffscale = new THREE.Vector3;
+		diffscale.subVectors(this.scale, this.latestscale); //Takes the difference of totrot and latsetrot
 
+		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
+		this.hasScale = new THREE.Vector3((diffscale.x != 0), (diffscale.y != 0), (diffscale.z != 0));
+
+		//To update the current scale as the latest so we can compare it with the new next time.
+		this.latestscale.x = this.scale.x;
+		this.latestscale.y = this.scale.y;
+		this.latestscale.z = this.scale.z;
+		
 		return this;
 	}
 
@@ -36004,13 +36013,13 @@ THREE.ScaleHelper.prototype.update = ( function () {
 /**
  * @author Tobie osv .. 
  */
- 
-THREE.TransHelper = function (trans, parents) {
-	
+
+THREE.TransHelper = function () {
+
 	
 	//this.update();
-};
 
+};
 
 THREE.TransHelper.prototype = Object.create( THREE.Object3D.prototype );
 THREE.TransHelper.prototype.constructor = THREE.TransHelper;
