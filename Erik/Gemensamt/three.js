@@ -35872,12 +35872,12 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 
 
 // returns an array with all parent objects, arr should be an empty array
-function getParents(obj, arr) {
+function getParents(obj, arr, num) {
 
-	if( obj.parent != null )
+	if( obj.parent != null && num != 0)
 	{
 		arr.push(obj.parent);
-		return getParents(obj.parent, arr );
+		return getParents(obj.parent, arr, --num);
 	}
 	else return arr;
 };
@@ -35889,14 +35889,16 @@ function getParents(obj, arr) {
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransformHelper = function ( myObj ){
+THREE.TransformHelper = function ( myObj, numparent){
 
 	this.object = myObj;
+	numparent = ( numparent !== undefined ) ? numparent : -1;
+
 	this.object.rot = new Array();
 	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
 	this.object.scale = new THREE.ScaleHelper(this.object.scale);
-	
-	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
+
+	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
 	for (i = 0; i < this.parents.length; i++){
 		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
 	}
@@ -35908,23 +35910,12 @@ THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
-		// for(var i = 0; i < this.object.rot.length; i++){
-		// 	this.object.rot[i].update();
-		// 	console.log(this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
-		// }
-		this.object.rot[0].update();
-		console.log("Normal" + this.object.rot[0].hasRot.x + ", " + this.object.rot[0].hasRot.y + ", " + this.object.rot[0].hasRot.z);
-		this.object.rot[1].update();
-		console.log("Parent" + this.object.rot[1].hasRot.x + ", " + this.object.rot[1].hasRot.y + ", " + this.object.rot[1].hasRot.z);
+		for(var i = 0; i < this.object.rot.length; i++){
+		 	this.object.rot[i].update();
+		 	console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+		}
 	}
 
-		//	obj.update();
-			//console.log(obj.hasRot.x + ", " + obj.hasRot.y + ", " + obj.hasRot.z);
-		//	console.log(obj);
-		//}
-		//this.object.rot.update();
-		//
-	//}
 
 }() );
 
@@ -35933,8 +35924,6 @@ THREE.TransformHelper.prototype.update = ( function () {
  */
 
 THREE.RotHelper = function (eulerR) {
-
-	//this.cnt = 0 //only to not spam
 
 	//for rot
 	this.eulerRot = eulerR; //The rot of the object
@@ -35963,7 +35952,7 @@ THREE.RotHelper.prototype.update = ( function () {
 		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
 
 		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
-		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+		this.hasRot = new THREE.Vector3((diffrot.x != 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
 
 		//Date and time to check the velocity and not rot
 		var date = new Date();

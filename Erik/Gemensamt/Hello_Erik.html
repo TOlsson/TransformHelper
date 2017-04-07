@@ -77,10 +77,6 @@
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
 		materialBox.wireframe = true;
-		/*objectMesh = new THREE.Mesh( geometryBox, materialBox );
-		objectMeshP1 = new THREE.Mesh( geometryBox, materialBox );
-		objectMeshP2 = new THREE.Mesh( geometryBox, materialBox );
-		objectMeshC1 = new THREE.Mesh( geometryBox, materialBox );*/
 
 		sunMesh = new THREE.Mesh( geometryBox, materialBox );
 		earthMesh = new THREE.Mesh( geometryBox, materialBox );
@@ -101,12 +97,8 @@
 		earthOrbiter.add( moonNode );
 		moonNode.add( moonMesh );
 
-		// Sun branch
-		//sceneRoot.add(GrandParent);
-		//GrandParent.add()
 
-
-		helper = new THREE.TransformHelper(earthNode);
+		helper = new THREE.TransformHelper(moonNode);
 		Ahelper= new THREE.AxisHelper(5);
 		earthNode.add(Ahelper);
 
