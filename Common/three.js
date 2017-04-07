@@ -35893,6 +35893,7 @@ THREE.TransFormHelper = function ( myObj ){
 
 	this.object = myObj;
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
+	this.object.scale = new THREE.ScaleHelper(this.object.scale);
 	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
 	
@@ -35964,6 +35965,31 @@ THREE.RotHelper.prototype.update = ( function () {
 		this.latestrot.x = this.eulerRot.x;
 		this.latestrot.y = this.eulerRot.y;
 		this.latestrot.z = this.eulerRot.z;
+
+		return this;
+	}
+
+}() );
+
+/**
+ * @author Sara Olsson osv .. 
+ */
+
+THREE.ScaleHelper = function (scale) {
+
+	
+	//this.update();
+
+};
+
+THREE.ScaleHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.ScaleHelper.prototype.constructor = THREE.ScaleHelper;
+
+THREE.ScaleHelper.prototype.update = ( function () {
+
+	return function update() {
+
+	
 
 		return this;
 	}
