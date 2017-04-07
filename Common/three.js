@@ -35889,7 +35889,7 @@ function getParents(obj, arr) {
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransFormHelper = function ( myObj ){
+THREE.TransformHelper = function ( myObj ){
 
 	this.object = myObj;
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
@@ -35899,10 +35899,10 @@ THREE.TransFormHelper = function ( myObj ){
 	
 }
 
-THREE.TransFormHelper.prototype = Object.create( THREE.Object3D.prototype );
-THREE.TransFormHelper.prototype.constructor = THREE.TransFormHelper;
+THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 
-THREE.TransFormHelper.prototype.update = ( function () {
+THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 		this.object.rot.update();
