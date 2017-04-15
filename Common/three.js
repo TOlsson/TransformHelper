@@ -35864,7 +35864,92 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 
 
 
+THREE.PaintRot = function (object) {
 
+	this.obj = object;
+
+	var radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
+		segments = 64,
+		myRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } ),
+		myGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
+		myBlue = new THREE.MeshBasicMaterial( { color: 0x0000ff } ),
+		//the three rotationcircles
+		geometry = new THREE.CircleGeometry( radius, segments ),
+		redCircle = new THREE.Line( geometry,  myRed ),
+		greenCircle = new THREE.Line( geometry,  myGreen ),
+		blueCircle = new THREE.Line( geometry,  myBlue ),
+		//The three rotationspheres
+		geometrySphere = new THREE.SphereGeometry( 0.1, 16, 16 );
+	this.redSphere = new THREE.Mesh( geometrySphere, myRed );
+	this.greenSphere = new THREE.Mesh( geometrySphere, myGreen );
+	this.blueSphere = new THREE.Mesh( geometrySphere, myBlue );
+
+	this.circleGroup = new THREE.Group(); //An object with all circles
+	this.redSphereRotNode = new THREE.Group(); //Used to rotate the spheres around center of object
+	this.greenSphereRotNode = new THREE.Group();
+	this.blueSphereRotNode = new THREE.Group();
+	this.translateFromParent = new THREE.Group(); //A group used to translate all the draw for rotation to right object/group
+
+	greenCircle.rotation.y = Math.PI / 2;
+	blueCircle.rotation.x = Math.PI / 2;
+
+	geometry.vertices.shift(); // Remove center vertex (line to center) //*På vilken geometry??
+
+
+	this.circleGroup.add(redCircle);
+	this.circleGroup.add(greenCircle);
+	this.circleGroup.add(blueCircle);
+	this.redSphereRotNode.add(this.redSphere);
+	this.greenSphereRotNode.add(this.greenSphere);
+	this.blueSphereRotNode.add(this.blueSphere);
+	this.translateFromParent.add(this.circleGroup);
+	this.translateFromParent.add(this.redSphereRotNode);
+	this.translateFromParent.add(this.blueSphereRotNode);
+	this.translateFromParent.add(this.greenSphereRotNode);
+
+	//If the object dont have a parent (object == Scenrot)
+	if(this.obj.parent != null){
+		this.obj.parent.add( this.translateFromParent );
+	}else{
+		this.obj.add( this.translateFromParent );
+	}
+}
+
+THREE.PaintRot.prototype.update = ( function () {
+
+	return function update(rot) {
+
+		var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+
+		this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+		this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+		this.redSphere.position.y = bbox.getBoundingSphere().radius;
+		this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+
+		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
+
+
+		if(rot.hasRot.x){
+			this.greenSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.greenSphereRotNode.rotation.x += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+		} else {
+			this.greenSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+		}
+		if(rot.hasRot.y){
+			this.blueSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.blueSphereRotNode.rotation.y += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+		} else {
+			this.blueSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+		}
+		if(rot.hasRot.z){
+			this.redSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.redSphereRotNode.rotation.z += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+		} else {
+			this.redSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+		}
+	}
+
+}() );
 
 
 
@@ -35889,14 +35974,22 @@ function getParents(obj, arr) {
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransformHelper = function ( myObj ){
+THREE.TransformHelper = function ( myObj, numparent){
 
+	numparent = ( numparent !== undefined ) ? numparent : -1;
 	this.object = myObj;
-	this.object.rot = new THREE.RotHelper(this.object.rotation);
+
+	this.object.rot = new Array();
+	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
 	this.object.scale = new THREE.ScaleHelper(this.object.scale);
-	
-	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
-	
+	this.paint = new Array();
+	this.paint.push(new THREE.PaintRot(this.object));
+
+	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
+	for (i = 0; i < this.parents.length; i++){
+		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+		// this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
+	}
 }
 
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
@@ -35905,8 +35998,12 @@ THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
-		this.object.rot.update();
-		console.log(this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
+		for(var i = 0; i < this.object.rot.length; i++){
+			this.object.rot[i].update();
+			// this.paint[i].update(this.object.rot[i]); //ser fult ut när alla körs
+			console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+		}
+		this.paint[0].update(this.object.rot[0]);
 	}
 
 }() );
@@ -35946,7 +36043,7 @@ THREE.RotHelper.prototype.update = ( function () {
 		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
 
 		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
-		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+		this.hasRot = new THREE.Vector3((diffrot.x != 0), (diffrot.y != 0), (diffrot.z != 0));
 
 		//Date and time to check the velocity and not rot
 		var date = new Date();

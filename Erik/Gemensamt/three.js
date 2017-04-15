@@ -35975,8 +35975,9 @@ function getParents(obj, arr, num) {
 
 THREE.TransformHelper = function (myObj, numparent){
 
-	this.object = myObj;
 	numparent = ( numparent !== undefined ) ? numparent : -1;
+	this.object = myObj;
+
 
 	this.object.rot = new Array();
 	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
