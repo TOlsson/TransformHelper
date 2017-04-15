@@ -35861,91 +35861,90 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 
 
 
-THREE.PaintRot = function  (object) {
+THREE.PaintRot = function (object) {
 
-	var radius  = 1,
-		segments = 64,
-		myRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } ), //Ändrade till mesh istället för line för att kunna använda till cirklarna också
-		myGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
-		myBlue = new THREE.MeshBasicMaterial( { color: 0x0000ff } ),
-		geometry = new THREE.CircleGeometry( radius, segments ),
-		greenCircle = new THREE.Line( geometry,  myGreen ),
-		blueCircle = new THREE.Line( geometry,  myBlue ),
-		redCircle = new THREE.Line( geometry,  myRed ),
-		//För den lilla sfären
-		geometrySphere = new THREE.SphereGeometry( 0.1, 16, 16 ),
-		blueSphere = new THREE.Mesh( geometrySphere, myBlue ),
-		redSphere = new THREE.Mesh( geometrySphere, myRed ),
-		greenSphere = new THREE.Mesh( geometrySphere, myGreen );
-		// geometry = new THREE.CircleGeometry( object.geometry.boundingSphere.radius, segments ), //Can only do if its a mesh :/
-
-	this.circleGroup = new THREE.Group();
-	this.blueSphereRotNode = new THREE.Group();
-	this.redSphereRotNode = new THREE.Group();
-	this.greenSphereRotNode = new THREE.Group();
-	this.allPaintFromParent = new THREE.Group(); //Bad name
 	this.obj = object;
 
-	blueSphere.position.x = 1.5; //Hårdkodat
-	redSphere.position.y = 1.5;
-	greenSphere.position.z = 1.5;
-	geometry.vertices.shift(); // Remove center vertex (line to center) //På vilken geometry??
+	var radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
+		segments = 64,
+		myRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } ),
+		myGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
+		myBlue = new THREE.MeshBasicMaterial( { color: 0x0000ff } ),
+		//the three rotationcircles
+		geometry = new THREE.CircleGeometry( radius, segments ),
+		redCircle = new THREE.Line( geometry,  myRed ),
+		greenCircle = new THREE.Line( geometry,  myGreen ),
+		blueCircle = new THREE.Line( geometry,  myBlue ),
+		//The three rotationspheres
+		geometrySphere = new THREE.SphereGeometry( 0.1, 16, 16 );
+	this.redSphere = new THREE.Mesh( geometrySphere, myRed );
+	this.greenSphere = new THREE.Mesh( geometrySphere, myGreen );
+	this.blueSphere = new THREE.Mesh( geometrySphere, myBlue );
+
+	this.circleGroup = new THREE.Group(); //An object with all circles
+	this.redSphereRotNode = new THREE.Group(); //Used to rotate the spheres around center of object
+	this.greenSphereRotNode = new THREE.Group();
+	this.blueSphereRotNode = new THREE.Group();
+	this.translateFromParent = new THREE.Group(); //A group used to translate all the draw for rotation to right object/group
 
 	greenCircle.rotation.y = Math.PI / 2;
 	blueCircle.rotation.x = Math.PI / 2;
 
+	// this.blueSphere.position.x = 3; //*Hårdkodat
+	// this.redSphere.position.y = 3;
+	// this.greenSphere.position.z = 3;
+
+	geometry.vertices.shift(); // Remove center vertex (line to center) //*På vilken geometry??
+
+
+	this.circleGroup.add(redCircle);
 	this.circleGroup.add(greenCircle);
 	this.circleGroup.add(blueCircle);
-	this.circleGroup.add(redCircle);
+	this.redSphereRotNode.add(this.redSphere);
+	this.greenSphereRotNode.add(this.greenSphere);
+	this.blueSphereRotNode.add(this.blueSphere);
+	this.translateFromParent.add(this.circleGroup);
+	this.translateFromParent.add(this.redSphereRotNode);
+	this.translateFromParent.add(this.blueSphereRotNode);
+	this.translateFromParent.add(this.greenSphereRotNode);
 
-	this.blueSphereRotNode.add(blueSphere);
-	this.redSphereRotNode.add(redSphere);
-	this.greenSphereRotNode.add(greenSphere);
-
-	this.allPaintFromParent.add(this.circleGroup);
-	this.allPaintFromParent.add(this.blueSphereRotNode);
-	this.allPaintFromParent.add(this.redSphereRotNode);
-	this.allPaintFromParent.add(this.greenSphereRotNode);
-
-	//because rot dosent have a parent
+	//If the object dont have a parent (object == Scenrot)
 	if(this.obj.parent != null){
-		this.obj.parent.add( this.allPaintFromParent );
+		this.obj.parent.add( this.translateFromParent );
 	}else{
-		this.obj.add( this.allPaintFromParent );
+		this.obj.add( this.translateFromParent );
 	}
-		// this.obj.parent.add( this.blueSphere ); //Kankse borde lägga till på detta object istället. = slipper bry sig om rotation m.m //dock så kommer den hänga med i alla led =inte bra //Dock scalas dem då
-		// this.obj.parent.add( this.redSphere ); //Kankse borde lägga till på detta object istället. = slipper bry sig om rotation m.m //dock så kommer den hänga med i alla led =inte bra //Dock scalas dem då
-		// this.obj.parent.add( this.greenSphere ); //Kankse borde lägga till på detta object istället. = slipper bry sig om rotation m.m //dock så kommer den hänga med i alla led =inte bra //Dock scalas dem då
-
-		// var bbox = new THREE.Box3().setFromObject(this.obj); //just test with bounding box of a group
-		// console.log(bbox.getBoundingSphere());
 }
 
 THREE.PaintRot.prototype.update = ( function () {
 
 	return function update(rot) {
 
-		var bbox = new THREE.Box3().setFromObject(this.obj); //just test with bounding box of a group
-		this.allPaintFromParent.position.setFromMatrixPosition(this.obj.matrix); //World eller bara matrix för world fuckar ur??
-		this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius);
-		// this.circleGroup.scale.set(1.5, 1.5, 1.5); //Hårdkådat borde använda oss av boundingsphere
+		var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+
+		this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+		this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+		this.redSphere.position.y = bbox.getBoundingSphere().radius;
+		this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+
+		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
 
 		if(rot.hasRot.x){
 			this.greenSphereRotNode.traverse( function ( object ) { object.visible = true; } );
-			this.greenSphereRotNode.rotation.x += 0.03; //Hårdkodat
+			this.greenSphereRotNode.rotation.x += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
 		} else {
 			this.greenSphereRotNode.traverse( function ( object ) { object.visible = false; } );
 		}
 		if(rot.hasRot.y){
 			this.blueSphereRotNode.traverse( function ( object ) { object.visible = true; } );
-			this.blueSphereRotNode.rotation.y += 0.03; //Hårdkodat
+			this.blueSphereRotNode.rotation.y += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
 		} else {
 			this.blueSphereRotNode.traverse( function ( object ) { object.visible = false; } );
 		}
 		if(rot.hasRot.z){
 			this.redSphereRotNode.traverse( function ( object ) { object.visible = true; } );
-			this.redSphereRotNode.rotation.z += 0.03; //Hårdkodat
+			this.redSphereRotNode.rotation.z += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
 		} else {
 			this.redSphereRotNode.traverse( function ( object ) { object.visible = false; } );
 		}
@@ -35974,7 +35973,7 @@ function getParents(obj, arr, num) {
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransformHelper = function ( myObj, numparent){
+THREE.TransformHelper = function (myObj, numparent){
 
 	this.object = myObj;
 	numparent = ( numparent !== undefined ) ? numparent : -1;
