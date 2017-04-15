@@ -98,9 +98,9 @@
 		moonNode.add( moonMesh );
 
 
-		helper = new THREE.TransformHelper(moonNode);
-		Ahelper= new THREE.AxisHelper(5);
-		earthNode.add(Ahelper);
+		helper = new THREE.TransformHelper(earthNode);
+//		Ahelper= new THREE.AxisHelper(5);
+//		earthNode.add(Ahelper);
 
 		//sceneRoot.add(helper);
 		renderer = new THREE.WebGLRenderer();
@@ -152,8 +152,8 @@
 //		objectMesh.position.x = 2;
 //		objectSpin.rotation.y += 0.02
 
-		sunNode.rotation.y += 0.03//oneTurn / 25 * deltaTime; // Sun rotation
-		sunOrbiter.rotation.y += 0.001 //oneTurn / 365 * deltaTime; // Earth orbit
+		sunNode.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
+		//sunOrbiter.rotation.y += 0.00001 //oneTurn / 365 * deltaTime; // Earth orbit //samma shit
 		sunMesh.scale.x = 2.0;
 		sunMesh.scale.y = 2.0;
 		sunMesh.scale.z = 2.0;
