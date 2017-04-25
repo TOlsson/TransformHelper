@@ -35913,19 +35913,29 @@ THREE.PaintRot = function (object) {
 	}else{
 		this.obj.add( this.translateFromParent );
 	}
+	
+	this.firstUpdate = true;
 }
 
 THREE.PaintRot.prototype.update = ( function () {
 
 	return function update(rot) {
+	
+	 //
+		if(this.firstUpdate )
+		{
+			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
 
-		var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+			this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+			this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+			this.redSphere.position.y = bbox.getBoundingSphere().radius;
+			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+				
+			this.firstUpdate  = false;
+		}
 
-		this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
-		this.blueSphere.position.x = bbox.getBoundingSphere().radius;
-		this.redSphere.position.y = bbox.getBoundingSphere().radius;
-		this.greenSphere.position.z = bbox.getBoundingSphere().radius;
-
+	//
+		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
 
@@ -35978,17 +35988,17 @@ THREE.TransformHelper = function ( myObj, numparent){
 
 	numparent = ( numparent !== undefined ) ? numparent : -1;
 	this.object = myObj;
-
+	
 	this.object.rot = new Array();
 	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
 	this.object.scale = new THREE.ScaleHelper(this.object.scale);
 	this.paint = new Array();
-	this.paint.push(new THREE.PaintRot(this.object));
+	this.paint.push(new THREE.PaintRot(this.object ));
 
 	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
 	for (i = 0; i < this.parents.length; i++){
 		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
-		// this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
+		this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
 	}
 }
 
@@ -35998,12 +36008,13 @@ THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
+		
 		for(var i = 0; i < this.object.rot.length; i++){
 			this.object.rot[i].update();
-			// this.paint[i].update(this.object.rot[i]); //ser fult ut när alla körs
+			this.paint[i].update(this.object.rot[i]); //ser fult ut när alla körs
 			console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
 		}
-		this.paint[0].update(this.object.rot[0]);
+		//this.paint[0].update(this.object.rot[0]);
 	}
 
 }() );

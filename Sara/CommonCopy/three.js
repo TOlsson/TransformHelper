@@ -35897,6 +35897,7 @@ THREE.TransformHelper = function ( myObj ){
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
 	
 	this.object.scales = new Array(); 
+	this.object.draw = new Array();
 	this.object.scales.push(new THREE.ScaleHelper(this.object.scale)); // add object in array
 	
 	for (i = 0; i < this.parents.length; i++){
@@ -35921,12 +35922,91 @@ THREE.TransformHelper.prototype.update = ( function () {
 			
 			if( this.object.scales[i].hasScale.length() > 0 ) // som scale has happend
 			{
+				
+				// draw something
+				 this.object.draw.push(new THREE.drawHelper(this.object.scales[i]));
+				// console.log(  this.object.scales[i] );
+				
 				console.log("Scale for parent " + i + " : " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
 			}
 			
 		}
 		
+		for( i = 0; i <  this.object.draw.length; i++ )
+		{
+			this.object.draw[i].update(); // update draw helper'
+			this.object.add(this.object.draw[i].line);
+			//this.parents[i].add(this.object.draw[i].line);
+			
+		}
 		
+		
+		
+	}
+
+}() );
+
+/**
+ * @author Sara Olsson
+ */
+
+THREE.drawHelper = function ( myObjScale ){
+
+	this.objScale = myObjScale;
+	
+	// console.log(  this.objScale.hasScale.x );
+	
+	// create materials
+	this.material = new THREE.LineBasicMaterial({
+	color: 0x0000ff
+	});
+	
+	this.geometry = new THREE.Geometry();
+	
+	
+	if(  this.objScale.hasScale.x )
+	{
+		this.geometry.vertices.push( 
+		
+			new THREE.Vector3( 1, 0, 0 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+	}
+	if(  this.objScale.hasScale.y )
+	{
+		this.geometry.vertices.push( 
+		
+			new THREE.Vector3( 0, 1, 0 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+	}
+	if(  this.objScale.hasScale.x )
+	{
+		this.geometry.vertices.push( 
+		
+			new THREE.Vector3( 0, 0, 1 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+	}
+	
+	
+	
+	this.line = new THREE.Line( this.geometry, this.material );
+	
+	
+	// this.objScale.add(line);
+	
+	
+}
+
+THREE.drawHelper.prototype = Object.create( THREE.Object3D.prototype );
+THREE.drawHelper.prototype.constructor = THREE.drawHelper;
+
+THREE.drawHelper.prototype.update = ( function () {
+
+	return function update() {
+		
+
 		
 	}
 
