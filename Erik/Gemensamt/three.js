@@ -35973,12 +35973,12 @@ THREE.PaintRot.prototype.update = ( function () {
 
 
 // returns an array with all parent objects, arr should be an empty array
-function getParents(obj, arr) {
+function getParents(obj, arr, num) {
 
-	if( obj.parent != null )
+	if( obj.parent != null && num != 0)
 	{
 		arr.push(obj.parent);
-		return getParents(obj.parent, arr );
+		return getParents(obj.parent, arr, --num);
 	}
 	else return arr;
 };
@@ -35996,14 +35996,14 @@ THREE.TransformHelper = function ( myObj, numparent){
 	this.object = myObj;
 	
 	this.object.rot = new Array();
-	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
+	this.object.rot.push(new THREE.RotHelper(this.object.rotation, this.object));
 	this.object.scale = new THREE.ScaleHelper(this.object.scale);
 	this.paint = new Array();
 	this.paint.push(new THREE.PaintRot(this.object ));
 
 	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
 	for (i = 0; i < this.parents.length; i++){
-		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation, this.parents[i]));
 		this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
 	}
 }
@@ -36016,9 +36016,9 @@ THREE.TransformHelper.prototype.update = ( function () {
 	return function update() {
 		
 		for(var i = 0; i < this.object.rot.length; i++){
-			this.object.rot[i].update();
+			this.object.rot[i].update(this.object);
 			this.paint[i].update(this.object.rot[i]); //ser fult ut när alla körs
-			console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+			//console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
 		}
 		//this.paint[0].update(this.object.rot[0]);
 	}
@@ -36029,7 +36029,7 @@ THREE.TransformHelper.prototype.update = ( function () {
  * @author Erik Åkesson
  */
 
-THREE.RotHelper = function (eulerR) {
+THREE.RotHelper = function (eulerR, object) {
 
 	//this.cnt = 0 //only to not spam
 
@@ -36040,6 +36040,7 @@ THREE.RotHelper = function (eulerR) {
 	this.rotvelocityM = new THREE.Vector3(0,0,0); //A vector that holds the Momentan rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
 	this.rotvelocityA = new THREE.Vector3(0,0,0); //A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
 
+	this.worldweyer = object.getWorldRotation().toVector3().sub(object.parent.getWorldRotation().toVector3());
 	//for time
 	var date = new Date();
 	this.startTime = date.getTime();
@@ -36054,7 +36055,7 @@ THREE.RotHelper.prototype.constructor = THREE.RotHelper;
 
 THREE.RotHelper.prototype.update = ( function () {
 
-	return function update() {
+	return function update(object) {
 
 		var diffrot = new THREE.Vector3;
 		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
@@ -36073,12 +36074,15 @@ THREE.RotHelper.prototype.update = ( function () {
 		//A vector that holds the Average rotationvelocity in rad/s for each axis (x,y,z) of an eulerRot
 		this.rotvelocityA = this.eulerRot.toVector3().divideScalar(elapsedTime);
 
-
 		//To update the current rot as the latest so we can compare it with the new next time.
 		this.latesttime = date.getTime();
 		this.latestrot.x = this.eulerRot.x;
 		this.latestrot.y = this.eulerRot.y;
 		this.latestrot.z = this.eulerRot.z;
+
+		//this.worldweyer = object.getWorldRotation().toVector3().sub(object.parent.getWorldRotation().toVector3());
+		this.worldweyer = object.getWorldRotation();
+		console.log(this.worldweyer);
 
 		return this;
 	}
