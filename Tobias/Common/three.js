@@ -35897,7 +35897,7 @@ THREE.TransformHelper = function ( myObj ){
 	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
 	
-	this.object.trans = new THREE.TransHelper(this.object.position, this.parents);
+	this.object.trans = new THREE.TransHelper(this.object, this.parents);
 	
 }
 
@@ -35909,7 +35909,7 @@ THREE.TransformHelper.prototype.update = ( function () {
 	return function update() {
 		this.object.rot.update();
 		this.object.trans.update();
-		console.log(this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
+		//console.log(this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
 	}
 
 }() );
@@ -36008,7 +36008,8 @@ THREE.ScaleHelper.prototype.update = ( function () {
  
 THREE.TransHelper = function (trans, parents) {
 	
-	this.position = trans;
+	this.obj = trans;
+	this.position = trans.position;
 	this.parents = parents;
 	this.latestTrans = new THREE.Vector3(this.position.x, this.position.y, this.position.z);
 	this.hasTrans = new THREE.Vector3(0,0,0);
@@ -36024,19 +36025,23 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 		
-		if(hasTrans != this.position){
+		if(this.hasTrans != this.position){
 			var test = new THREE.Geometry();
 			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			test.vertices.push(
 				new THREE.Vector3,
-				this.position
+				new THREE.Vector3(this.position.x*(-1),this.position.y*(-1),this.position.z*(-1))
 			);
-			
+			console.log(test);
 			this.latestTrans.x = this.position.x;
 			this.latestTrans.y = this.position.y;
 			this.latestTrans.z = this.position.z;
 			
-			line = new THREE.LineSegments(test, material);
+			this.hasTrans = this.position;
+			
+			this.line = new THREE.LineSegments(test, material);
+			
+			this.obj.add(this.line);
 		}
 		//console.log(test);
 		
@@ -36047,10 +36052,16 @@ THREE.TransHelper.prototype.update = ( function () {
 		// for(var i = 0; i < this.parents.length; i++){
 			// test[i] = new THREE.Geometry();
 			// test[i].vertices.push(
-				// this.parents[0].position,
+				// if(i != 0){
+					// this.parents[i-1].position,
+				// }
+				// else{
+					// this.parents[0],position,
+				// }
 				// this.parents[i].position
 			// );
 			// this.line[i] = new THREE.LineSegments(test[i], material);
+			// this.obj.add(this.line[i]);
 		// }
 		// console.log("i trans update");
 		// console.log(this.line);

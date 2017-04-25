@@ -36,7 +36,8 @@
 	// Object3D ("Group") nodes and Mesh nodes
 	var sceneRoot = new THREE.Group();
 	var objectSpin = new THREE.Group();
-	var objectMesh;
+	var objectSpin1 = new THREE.Group();
+	var objectMesh, objectMesh1;
 	var helper;
 	var rotspeedx = 0;
 	var rotspeedy = 0;
@@ -62,7 +63,6 @@
 
 		camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
 		camera.position.z = 10;
-		objectSpin1.position.x = -2;
 
 		scene = new THREE.Scene();
 
@@ -71,6 +71,7 @@
 		var materialBox = new THREE.MeshBasicMaterial();
 		materialBox.wireframe = true;
 		objectMesh = new THREE.Mesh( geometryBox, materialBox );
+		objectMesh1 = new THREE.Mesh( geometryBox, materialBox );
 
 
 
@@ -80,7 +81,9 @@
 		// Sun branch
 		sceneRoot.add( objectSpin );
 		objectSpin.add( objectMesh );
-		helper = new THREE.TransformHelper( objectMesh );
+		objectSpin.add( objectSpin1 );
+		objectSpin1.add( objectMesh1 );
+		helper = new THREE.TransformHelper( objectMesh1 );
 
 		//sceneRoot.add(helper);
 
@@ -133,6 +136,7 @@
 		objectMesh.rotation.z += rotspeedz;
 
 		objectMesh.position.x = 2;
+		objectMesh1.position.y = 3;
 		objectSpin.rotation.y += 0.02
 
 		helper.update();
