@@ -36025,24 +36025,27 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 		
-		if(this.hasTrans != this.position){
-			var test = new THREE.Geometry();
-			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
-			test.vertices.push(
-				new THREE.Vector3,
-				new THREE.Vector3(this.position.x*(-1),this.position.y*(-1),this.position.z*(-1))
-			);
-			console.log(test);
-			this.latestTrans.x = this.position.x;
-			this.latestTrans.y = this.position.y;
-			this.latestTrans.z = this.position.z;
+		// if(this.hasTrans != this.position){
+			// var test = new THREE.Geometry();
+			// var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
+			// test.vertices.push(
+				// new THREE.Vector3,
+				// new THREE.Vector3(this.position.x*(-1),this.position.y*(-1),this.position.z*(-1))
+			// );
+			// console.log(test);
+			// this.latestTrans.x = this.position.x;
+			// this.latestTrans.y = this.position.y;
+			// this.latestTrans.z = this.position.z;
 			
-			this.hasTrans = this.position;
+			// this.hasTrans = this.position;
 			
-			this.line = new THREE.LineSegments(test, material);
+			// this.line = new THREE.LineSegments(test, material);
 			
-			this.obj.add(this.line);
-		}
+			// this.obj.add(this.line);
+		// }
+		
+		
+		
 		//console.log(test);
 		
 		// var test = new Array();
