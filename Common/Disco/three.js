@@ -35932,7 +35932,7 @@ THREE.PaintRot.prototype.update = ( function () {
 			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
 				
 			this.firstUpdate  = false;
-		
+
 
 	//
 		
