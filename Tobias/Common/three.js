@@ -36030,7 +36030,7 @@ THREE.TransHelper.prototype.update = ( function () {
 			// var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			// test.vertices.push(
 				// new THREE.Vector3,
-				// new THREE.Vector3(this.position.x*(-1),this.position.y*(-1),this.position.z*(-1))
+				// this.parents[2].getWorldPosition()
 			// );
 			// console.log(test);
 			// this.latestTrans.x = this.position.x;
@@ -36044,47 +36044,48 @@ THREE.TransHelper.prototype.update = ( function () {
 			// this.obj.add(this.line);
 		// }
 		
-		var geo = new THREE.Geometry();
-		var material = new THREE.LineBasicMaterial({color: 0x0000ff});
-		this.parents[0].matrixWorldNeedsUpdate = true;
-		console.log(this.parents[0].position.y);
-		for(var i = 0; i < this.parents.length; i++){
-			
-			geo.vertices.push(
-				new THREE.Vector3,
-				this.parents[i].position
-			);
-			
-			var line = new THREE.LineSegments(geo, material);
-			//console.log(line);
-			
-			this.obj.add(line);
-		}
 		
 		//console.log(test);
 		
-		// var test = new Array();
-		// this.line = new Array();
-		// var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
+		//console.log(this.parents);
+		//console.log(this.position);
 		
-		// for(var i = 0; i < this.parents.length; i++){
-			// test[i] = new THREE.Geometry();
-			// test[i].vertices.push(
-				// if(i != 0){
-					// this.parents[i-1].position,
-				// }
-				// else{
-					// this.parents[0],position,
-				// }
-				// this.parents[i].position
-			// );
-			// this.line[i] = new THREE.LineSegments(test[i], material);
-			// this.obj.add(this.line[i]);
-		// }
-		// console.log("i trans update");
-		// console.log(this.line);
-		// console.log(this.parents);
+		if(this.hasTrans != this.position){
 		
+			var test = new Array();
+			this.line = new Array();
+			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
+			
+			for(var i = 0; i < this.parents.length; i++){
+				test[i] = new THREE.Geometry();
+				
+				if(i != 0){
+					test[i].vertices.push(
+						this.parents[i-1].position,
+						this.parents[i].position
+					);
+				}
+				else{
+					test[i].vertices.push(
+						this.parents[0].position,
+						this.parents[i].position
+					);
+				}
+				this.line[i] = new THREE.LineSegments(test[i], material);
+				this.obj.add(this.line[i]);
+				
+			}
+			
+			this.latestTrans.x = this.position.x;
+			this.latestTrans.y = this.position.y;
+			this.latestTrans.z = this.position.z;
+			
+			this.hasTrans = this.position;
+		
+			console.log("i trans update");
+			console.log(this.line);
+			console.log(this.parents);
+		}
 		
 		return this;
 	}
