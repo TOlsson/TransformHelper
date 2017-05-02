@@ -35868,8 +35868,7 @@ THREE.PaintRot = function (object) {
 
 	this.obj = object;
 
-	var radius  = 0.75,
-		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
+	var radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
 		segments = 64,
 		myRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } ),
 		myGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
@@ -35896,6 +35895,7 @@ THREE.PaintRot = function (object) {
 
 	geometry.vertices.shift(); // Remove center vertex (line to center)
 
+
 	this.circleGroup.add(this.redCircle);
 	this.circleGroup.add(this.greenCircle);
 	this.circleGroup.add(this.blueCircle);
@@ -35906,10 +35906,6 @@ THREE.PaintRot = function (object) {
 	this.translateFromParent.add(this.redSphereRotNode);
 	this.translateFromParent.add(this.blueSphereRotNode);
 	this.translateFromParent.add(this.greenSphereRotNode);
-
-	this.redSphere.position.y = 0.75;
-	this.blueSphere.position.x = 0.75;
-	this.greenSphere.position.z = 0.75;
 
 	//If the object dont have a parent (object == Scenrot)
 	if(this.obj.parent != null){
@@ -35925,19 +35921,20 @@ THREE.PaintRot.prototype.update = ( function () {
 
 	return function update(rot) {
 	
-	 /*
+	 //
 		if(this.firstUpdate )
 		{
 			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+
 			this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
 			this.redSphere.position.y = bbox.getBoundingSphere().radius;
 			this.blueSphere.position.x = bbox.getBoundingSphere().radius;
 			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
-
+				
 			this.firstUpdate  = false;
 		}
 
-	*/
+	//
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
@@ -35976,12 +35973,12 @@ THREE.PaintRot.prototype.update = ( function () {
 
 
 // returns an array with all parent objects, arr should be an empty array
-function getParents(obj, arr, num) {
+function getParents(obj, arr) {
 
-	if( obj.parent != null && num != 0)
+	if( obj.parent != null )
 	{
 		arr.push(obj.parent);
-		return getParents(obj.parent, arr, num-- );
+		return getParents(obj.parent, arr );
 	}
 	else return arr;
 };
