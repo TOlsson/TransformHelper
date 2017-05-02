@@ -35864,9 +35864,196 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 
 
 
+THREE.PaintRot = function (object) {
+
+	this.obj = object;
+
+	var radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
+		segments = 64,
+		myRed = new THREE.MeshBasicMaterial( { color: 0x0000ff } ), // red but is blue
+		myGreen = new THREE.MeshBasicMaterial( { color: 0xff0000 } ), // green but is red
+		myBlue = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ), // blue but is green
+		//the three rotationcircles
+		geometry = new THREE.CircleGeometry( radius, segments ),
+		//The three rotationspheres
+		geometrySphere = new THREE.SphereGeometry( 0.1, 16, 16 );
+	this.redCircle = new THREE.Line( geometry,  myRed );
+	this.greenCircle = new THREE.Line( geometry,  myGreen );
+	this.blueCircle = new THREE.Line( geometry,  myBlue );
+	this.redSphere = new THREE.Mesh( geometrySphere, myRed );
+	this.greenSphere = new THREE.Mesh( geometrySphere, myGreen );
+	this.blueSphere = new THREE.Mesh( geometrySphere, myBlue );
+
+	this.circleGroup = new THREE.Group(); //An object with all circles
+	this.redSphereRotNode = new THREE.Group(); //Used to rotate the spheres around center of object
+	this.greenSphereRotNode = new THREE.Group();
+	this.blueSphereRotNode = new THREE.Group();
+	this.translateFromParent = new THREE.Group(); //A group used to translate all the draw for rotation to right object/group
+
+	this.greenCircle.rotation.y = Math.PI / 2;
+	this.blueCircle.rotation.x = Math.PI / 2;
+
+	geometry.vertices.shift(); // Remove center vertex (line to center)
 
 
+	this.circleGroup.add(this.redCircle);
+	this.circleGroup.add(this.greenCircle);
+	this.circleGroup.add(this.blueCircle);
+	this.redSphereRotNode.add(this.redSphere);
+	this.greenSphereRotNode.add(this.greenSphere);
+	this.blueSphereRotNode.add(this.blueSphere);
+	this.translateFromParent.add(this.circleGroup);
+	this.translateFromParent.add(this.redSphereRotNode);
+	this.translateFromParent.add(this.blueSphereRotNode);
+	this.translateFromParent.add(this.greenSphereRotNode);
 
+	//If the object dont have a parent (object == Scenrot)
+	if(this.obj.parent != null){
+		this.obj.parent.add( this.translateFromParent );
+	}else{
+		this.obj.add( this.translateFromParent );
+	}
+	
+	this.firstUpdate = true;
+}
+
+THREE.PaintRot.prototype.update = ( function () {
+
+	return function update(rot) {
+	
+	 //
+		if(this.firstUpdate )
+		{
+			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+
+			this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+			this.redSphere.position.y = bbox.getBoundingSphere().radius;
+			this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+				
+			this.firstUpdate  = false;
+		}
+
+	//
+		
+		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
+
+
+		if(rot.hasRot.z){
+			this.redSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.redSphereRotNode.rotation.z += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+			this.redCircle.traverse( function ( object ) { object.visible = true; } );
+		} else {
+			this.redSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+			this.redCircle.traverse( function ( object ) { object.visible = false; } );
+		}
+		if(rot.hasRot.y){
+			this.blueSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.blueSphereRotNode.rotation.y += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+			this.blueCircle.traverse( function ( object ) { object.visible = true; } );
+		} else {
+			this.blueSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+			this.blueCircle.traverse( function ( object ) { object.visible = false; } );
+		}
+		if(rot.hasRot.x){
+			this.greenSphereRotNode.traverse( function ( object ) { object.visible = true; } );
+			this.greenSphereRotNode.rotation.x += 0.03; //*Hårdkodat Borde använda vinkelhastighet per frame?
+			this.greenCircle.traverse( function ( object ) { object.visible = true; } );
+		} else {
+			this.greenSphereRotNode.traverse( function ( object ) { object.visible = false; } );
+			this.greenCircle.traverse( function ( object ) { object.visible = false; } );
+		}
+	}
+
+}() );
+
+THREE.PaintScale = function (object) {
+
+	this.obj = object;
+	
+	this.myRed = new THREE.LineBasicMaterial( { color: 0xff0000} );
+	this.myGreen = new THREE.LineBasicMaterial( { color: 0x00ff00 } ); 
+	this.myBlue = new THREE.LineBasicMaterial( { color: 0x0000ff } ); 
+	
+	
+	// create materials
+	this.material = new THREE.LineBasicMaterial({
+	color: 0xff00ff
+	});
+	
+	
+	this.geometry = new THREE.Geometry();
+	
+	this.redGeometry = new THREE.Geometry();
+	this.greenGeometry = new THREE.Geometry();
+	this.blueGeometry = new THREE.Geometry();
+	
+	this.line = new THREE.Line( this.geometry, this.material );
+	
+	this.redLine = new THREE.Line( this.geometry,  this.myRed );
+	this.greenLine = new THREE.Line( this.geometry,  this.myGreen );
+	this.blueLine = new THREE.Line( this.geometry,  this.myBlue );
+	
+	var geometryBox = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+	var materialBox = new THREE.MeshBasicMaterial();
+
+	this.boxMesh = new THREE.Mesh( geometryBox, materialBox );
+
+}
+
+THREE.PaintScale.prototype.update = ( function () {
+
+
+	return function update(scaleHelper) {
+		
+	
+	if(  scaleHelper.hasScale.x )
+	{
+		this.redGeometry.vertices.push( 
+		
+			new THREE.Vector3( 1, 0, 0 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+		// this.obj.add(this.boxMesh);
+	}
+	if(  scaleHelper.hasScale.y )
+	{
+		this.geometry.vertices.push( 
+		
+			new THREE.Vector3( 0, 1, 0 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+		this.obj.add(this.boxMesh);
+	}
+	if( scaleHelper.hasScale.z )
+	{
+		this.geometry.vertices.push( 
+		
+			new THREE.Vector3( 0, 0, 1 ), 
+			new THREE.Vector3( 0, 0, 0 )
+		);
+		this.obj.add(this.boxMesh);
+	}
+	
+	
+	if( scaleHelper.hasScale.x || scaleHelper.hasScale.y || scaleHelper.hasScale.z  )  // do not add a line if there is no scaling
+	{
+		
+		this.line = new THREE.Line( this.geometry, this.myRed);	
+		this.obj.add( this.line );
+		
+	}
+	
+	
+	if(  scaleHelper.hasScale.x )
+	{
+		this.line = new THREE.Line( this.redGeometry, this.material );	
+		
+	}
+	
+	}
+
+}() );
 
 
 
@@ -35889,21 +36076,29 @@ function getParents(obj, arr) {
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransformHelper = function ( myObj ){
+THREE.TransformHelper = function ( myObj, numparent){
 
+	numparent = ( numparent !== undefined ) ? numparent : -1;
 	this.object = myObj;
-	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
 	
-	this.object.rot = new THREE.RotHelper(this.object.rotation);
-	
+	this.object.rot = new Array();
+	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
+//	this.object.scale = new THREE.ScaleHelper(this.object.scale);
+	this.paint = new Array();
+	this.paint.push(new THREE.PaintRot(this.object ));
+
 	this.object.scales = new Array(); 
-	this.object.draw = new Array();
-	this.object.scales.push(new THREE.ScaleHelper(this.object.scale)); // add object in array
+	this.object.scales.push(new THREE.ScaleHelper(this.object.scale)); // add first object (this)  in array
+	this.paintScales = new Array();
+	this.paintScales.push(new THREE.PaintScale(this.object));
 	
+	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
 	for (i = 0; i < this.parents.length; i++){
+		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+		this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
 		this.object.scales.push(new THREE.ScaleHelper(this.parents[i].scale)); // scale helper to all parents
+		this.paintScales.push(new THREE.PaintScale(this.parents[i])); //ser fult ut när alla körs
 	}
-	
 }
 
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
@@ -35913,99 +36108,23 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 		
-		// this.object.rot.update();
-		
-		for( i = 0; i <  this.object.scales.length; i++ )
-		{
-			this.object.scales[i].update(); // update scale helper -> update hasScale values
-			//console.log(  this.object.scales[i].hasScale.length() );
+		for(var i = 0; i < this.object.rot.length; i++){
+			this.object.rot[i].update();
+			this.paint[i].update(this.object.rot[i]);
 			
-			if( this.object.scales[i].hasScale.length() > 0 ) // som scale has happend
-			{
-				
-				// draw something
-				 this.object.draw.push(new THREE.drawHelper(this.object.scales[i]));
-				// console.log(  this.object.scales[i] );
-				
-				console.log("Scale for parent " + i + " : " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
-			}
-			
+			// console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
 		}
 		
-		for( i = 0; i <  this.object.draw.length; i++ )
-		{
-			this.object.draw[i].update(); // update draw helper'
-			this.object.add(this.object.draw[i].line);
-			//this.parents[i].add(this.object.draw[i].line);	
-		}
+		for(var i = 0; i < this.object.scales.length; i++){
+			
+			this.object.scales[i].update();
+			this.paintScales[i].update(this.object.scales[i]); 
+			
+			console.log("Object scales " + i + " | " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
+			
+		} 
 		
-		
-		
-	}
-
-}() );
-
-/**
- * @author Sara Olsson
- */
-
-THREE.drawHelper = function ( myObjScale ){
-
-	this.objScale = myObjScale;
-	
-	// console.log(  this.objScale.hasScale.x );
-	
-	// create materials
-	this.material = new THREE.LineBasicMaterial({
-	color: 0x0000ff
-	});
-	
-	this.geometry = new THREE.Geometry();
-	
-	
-	if(  this.objScale.hasScale.x )
-	{
-		this.geometry.vertices.push( 
-		
-			new THREE.Vector3( 1, 0, 0 ), 
-			new THREE.Vector3( 0, 0, 0 )
-		);
-	}
-	if(  this.objScale.hasScale.y )
-	{
-		this.geometry.vertices.push( 
-		
-			new THREE.Vector3( 0, 1, 0 ), 
-			new THREE.Vector3( 0, 0, 0 )
-		);
-	}
-	if(  this.objScale.hasScale.x )
-	{
-		this.geometry.vertices.push( 
-		
-			new THREE.Vector3( 0, 0, 1 ), 
-			new THREE.Vector3( 0, 0, 0 )
-		);
-	}
-	
-	
-	
-	this.line = new THREE.Line( this.geometry, this.material );
-	
-	
-	// this.objScale.add(line);
-	
-	
-}
-
-THREE.drawHelper.prototype = Object.create( THREE.Object3D.prototype );
-THREE.drawHelper.prototype.constructor = THREE.drawHelper;
-
-THREE.drawHelper.prototype.update = ( function () {
-
-	return function update() {
-		
-
+			
 		
 	}
 
@@ -36046,7 +36165,7 @@ THREE.RotHelper.prototype.update = ( function () {
 		diffrot.subVectors(this.eulerRot, this.latestrot); //Takes the difference of totrot and latsetrot
 
 		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
-		this.hasRot = new THREE.Vector3((diffrot.x > 0 || diffrot.x < 0), (diffrot.y > 0 || diffrot.y < 0), (diffrot.z > 0 || diffrot.z < 0));
+		this.hasRot = new THREE.Vector3((diffrot.x != 0), (diffrot.y != 0), (diffrot.z != 0));
 
 		//Date and time to check the velocity and not rot
 		var date = new Date();
@@ -36104,6 +36223,8 @@ THREE.ScaleHelper.prototype.update = ( function () {
 		this.latestscale.y = this.myscale.y;
 		this.latestscale.z = this.myscale.z;
 		
+	// 	console.log("this.latestscale " + i + " | " +this.latestscale.x + ", " + this.latestscale.y + ", " + this.latestscale.z );
+		
 		return this;
 	}
 
@@ -36112,13 +36233,12 @@ THREE.ScaleHelper.prototype.update = ( function () {
 /**
  * @author Tobie osv .. 
  */
-
-THREE.TransHelper = function () {
-
+ 
+THREE.TransHelper = function (trans, parents) {
 	
 	//this.update();
-
 };
+
 
 THREE.TransHelper.prototype = Object.create( THREE.Object3D.prototype );
 THREE.TransHelper.prototype.constructor = THREE.TransHelper;
@@ -36126,9 +36246,8 @@ THREE.TransHelper.prototype.constructor = THREE.TransHelper;
 THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
-
-	
-
+		
+		
 		return this;
 	}
 
