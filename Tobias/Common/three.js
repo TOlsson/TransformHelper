@@ -36044,7 +36044,22 @@ THREE.TransHelper.prototype.update = ( function () {
 			// this.obj.add(this.line);
 		// }
 		
-		
+		var geo = new THREE.Geometry();
+		var material = new THREE.LineBasicMaterial({color: 0x0000ff});
+		this.parents[0].matrixWorldNeedsUpdate = true;
+		console.log(this.parents[0].position.y);
+		for(var i = 0; i < this.parents.length; i++){
+			
+			geo.vertices.push(
+				new THREE.Vector3,
+				this.parents[i].position
+			);
+			
+			var line = new THREE.LineSegments(geo, material);
+			//console.log(line);
+			
+			this.obj.add(line);
+		}
 		
 		//console.log(test);
 		

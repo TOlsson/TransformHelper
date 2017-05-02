@@ -63,6 +63,8 @@
 
 		camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
 		camera.position.z = 10;
+		
+		
 
 		scene = new THREE.Scene();
 
@@ -74,7 +76,9 @@
 		objectMesh1 = new THREE.Mesh( geometryBox, materialBox );
 
 
-
+		objectMesh.position.x = 2;
+		objectMesh1.position.y = 3;
+		
 		// Top-level node
 		scene.add( sceneRoot );
 
@@ -84,6 +88,12 @@
 		objectSpin.add( objectSpin1 );
 		objectSpin1.add( objectMesh1 );
 		helper = new THREE.TransformHelper( objectMesh1 );
+		
+		objectSpin.name = "Spin";
+		objectSpin1.name = "Spin1";
+		objectMesh.name = "Mesh";
+		objectMesh1.name = "Mesh1";
+		sceneRoot.name = "sceneRoot";
 
 		//sceneRoot.add(helper);
 
@@ -135,8 +145,7 @@
 		objectMesh.rotation.x += rotspeedx;
 		objectMesh.rotation.z += rotspeedz;
 
-		objectMesh.position.x = 2;
-		objectMesh1.position.y = 3;
+		
 		objectSpin.rotation.y += 0.02
 
 		helper.update();
