@@ -36011,8 +36011,9 @@ THREE.TransHelper = function (trans, parents) {
 	this.obj = trans;
 	this.position = trans.position;
 	this.parents = parents;
-	this.latestTrans = new THREE.Vector3(this.position.x, this.position.y, this.position.z);
-	this.hasTrans = new THREE.Vector3(0,0,0);
+	this.line = new Array();
+	this.latestTrans = new Array();
+	this.hasTrans = false;
 	
 	//this.update();
 };
@@ -36024,42 +36025,41 @@ THREE.TransHelper.prototype.constructor = THREE.TransHelper;
 THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
+
 		
-		// if(this.hasTrans != this.position){
-			// var test = new THREE.Geometry();
-			// var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
-			// test.vertices.push(
-				// new THREE.Vector3,
-				// this.parents[2].getWorldPosition()
-			// );
-			// console.log(test);
-			// this.latestTrans.x = this.position.x;
-			// this.latestTrans.y = this.position.y;
-			// this.latestTrans.z = this.position.z;
+		if (this.latestTrans.length == 0 || this.latestTrans.length != this.parents.length) {
+			this.hasTrans = true;
+			console.log("holA");
+		}
+
+		else if (this.latestTrans.length == this.parents.length){
+			var count = 0;
 			
-			// this.hasTrans = this.position;
-			
-			// this.line = new THREE.LineSegments(test, material);
-			
-			// this.obj.add(this.line);
-		// }
-		
-		
-		//console.log(test);
-		
-		//console.log(this.parents);
-		//console.log(this.position);
-		
-		if(this.hasTrans != this.position){
-		
+			for (var i = 0; i < this.parents.length; i++){
+				if (this.latestTrans[i].equals(this.parents[i].getWorldPosition())){
+					count++;
+				}
+			}
+
+			if (count != this.latestTrans.length){
+				this.hasTrans = true;
+			}
+		}
+
+		if(this.hasTrans){
+			console.log("njet");
+			for(var i = 0; i < this.line.length; i++){
+			 	this.parents[i].remove(this.line[i]);
+			}
+
+
 			var test = new Array();
 			var temp = new THREE.Vector3();
-			this.line = new Array();
 			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			
 			for(var i = 0; i < this.parents.length; i++){
 				test[i] = new THREE.Geometry();
-				
+				this.latestTrans[i] = this.parents[i].position;
 				if(i != 0){
 					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
 					test[i].vertices.push(
@@ -36076,22 +36076,13 @@ THREE.TransHelper.prototype.update = ( function () {
 				}
 				this.line[i] = new THREE.LineSegments(test[i], material);
 				this.parents[i].add(this.line[i]);
-				console.log(this.parents[i].getWorldPosition());
-				console.log(temp);
+
 			}
 			var axis = new THREE.AxisHelper(1);
 			this.parents[2].add(axis);
-			
-			
-			this.latestTrans.x = this.position.x;
-			this.latestTrans.y = this.position.y;
-			this.latestTrans.z = this.position.z;
-			
-			this.hasTrans = this.position;
-			
-			console.log("i trans update");
-			console.log(this.line);
-			console.log(this.parents);
+			this.hasTrans = false;
+
+			//console.log(this.parents);
 		}
 		
 		return this;
