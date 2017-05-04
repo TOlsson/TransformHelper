@@ -35971,6 +35971,7 @@ THREE.PaintScale = function (object) {
 
 	this.obj = object;
 	
+	// create materials
 	this.myRed = new THREE.LineBasicMaterial( { color: 0xff0000} );
 	this.myGreen = new THREE.LineBasicMaterial( { color: 0x00ff00 } ); 
 	this.myBlue = new THREE.LineBasicMaterial( { color: 0x0000ff } ); 
@@ -35998,6 +35999,37 @@ THREE.PaintScale = function (object) {
 	var materialBox = new THREE.MeshBasicMaterial();
 
 	this.boxMesh = new THREE.Mesh( geometryBox, materialBox );
+	
+	
+	
+	var materials = [];
+  /*
+    materials.push( new THREE.MeshBasicMaterial( { color: 0xff0000} ) );
+    materials.push( new THREE.MeshBasicMaterial( { color: 0x00ff00} ) );
+	materials.push( new THREE.MeshBasicMaterial( { color: 0x0000ff} ) ); */
+	
+	 for ( var i = 0; i < 6; i ++ ) {
+        materials.push( new THREE.MeshBasicMaterial( { color: 0xff00ff}  ) );
+    }
+	
+
+//    this.cube = new THREE.Mesh( new THREE.BoxGeometry( 0.2, 0.2, 0.2), materials  );
+	this.cube = new THREE.Mesh( new THREE.BoxGeometry( 0.2, 0.2, 0.2), new THREE.MeshBasicMaterial()  );
+	
+	
+	var redPlaneGeometry = new THREE.PlaneGeometry( 1, 1);
+	var redPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
+	var plane = new THREE.Mesh( redPlaneGeometry, redPlaneMaterial );
+	
+	var greenPlaneGeometry = new THREE.PlaneGeometry( 1, 1);
+	var greenPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0x00ff00, side: THREE.DoubleSide} );
+	var planeGreen = new THREE.Mesh( greenPlaneGeometry, greenPlaneMaterial );
+	
+	plane.rotation.y =  Math.PI / 2;
+	planeGreen.rotation.y =  -Math.PI / 2;
+	
+//	scene.add( plane );
+	this.obj.add( planeGreen );
 
 }
 
@@ -36018,38 +36050,40 @@ THREE.PaintScale.prototype.update = ( function () {
 	}
 	if(  scaleHelper.hasScale.y )
 	{
-		this.geometry.vertices.push( 
+		this.greenGeometry.vertices.push( 
 		
 			new THREE.Vector3( 0, 1, 0 ), 
 			new THREE.Vector3( 0, 0, 0 )
 		);
-		this.obj.add(this.boxMesh);
+		//this.obj.add(this.boxMesh);
 	}
 	if( scaleHelper.hasScale.z )
 	{
-		this.geometry.vertices.push( 
+		this.blueGeometry.vertices.push( 
 		
 			new THREE.Vector3( 0, 0, 1 ), 
 			new THREE.Vector3( 0, 0, 0 )
 		);
-		this.obj.add(this.boxMesh);
+		//this.obj.add(this.boxMesh);
 	}
 	
-	
-	if( scaleHelper.hasScale.x || scaleHelper.hasScale.y || scaleHelper.hasScale.z  )  // do not add a line if there is no scaling
-	{
-		
-		this.line = new THREE.Line( this.geometry, this.myRed);	
-		this.obj.add( this.line );
-		
-	}
+
 	
 	
 	if(  scaleHelper.hasScale.x )
-	{
-		this.line = new THREE.Line( this.redGeometry, this.material );	
+	{	this.redLine = new THREE.Line( this.redGeometry, this.myRed );	
+		this.obj.add( this.redLine ); }
 		
-	}
+	if(  scaleHelper.hasScale.y )
+	{	this.greenLine = new THREE.Line( this.greenGeometry, this.myGreen );	
+		this.obj.add( this.greenLine ); }
+		
+	if(  scaleHelper.hasScale.z )
+	{	this.blueLine = new THREE.Line( this.blueGeometry, this.myBlue );	
+	this.obj.add( this.blueLine ); }
+	
+
+// 	this.obj.add(this.cube);
 	
 	}
 

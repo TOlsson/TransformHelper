@@ -35871,9 +35871,9 @@ THREE.PaintRot = function (object) {
 	var radius  = 0.75,
 		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
 		segments = 64,
-		myRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } ),
-		myGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ),
-		myBlue = new THREE.MeshBasicMaterial( { color: 0x0000ff } ),
+		myRed = new THREE.MeshBasicMaterial( { color: 0x0000ff } ), // red but is blue
+		myGreen = new THREE.MeshBasicMaterial( { color: 0xff0000 } ), // green but is red
+		myBlue = new THREE.MeshBasicMaterial( { color: 0x00ff00 } ), // blue but is green
 		//the three rotationcircles
 		geometry = new THREE.CircleGeometry( radius, segments ),
 		//The three rotationspheres
