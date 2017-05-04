@@ -36031,7 +36031,6 @@ THREE.TransHelper.prototype.update = ( function () {
 			this.hasTrans = true;
 			console.log("holA");
 		}
-
 		else if (this.latestTrans.length == this.parents.length){
 			var count = 0;
 			
@@ -36044,9 +36043,12 @@ THREE.TransHelper.prototype.update = ( function () {
 			if (count != this.latestTrans.length){
 				this.hasTrans = true;
 			}
+			else {
+				this.hasTrans = false;
+			}
 		}
-
-		if(this.hasTrans){
+		
+		if(this.hasTrans == true){
 			console.log("njet");
 			for(var i = 0; i < this.line.length; i++){
 			 	this.parents[i].remove(this.line[i]);
