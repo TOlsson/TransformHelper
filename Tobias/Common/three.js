@@ -36013,7 +36013,7 @@ THREE.TransHelper = function (trans, parents) {
 	this.parents = parents;
 	this.line = new Array();
 	this.latestTrans = new Array();
-	this.hasTrans = false;
+	this.hasTrans;
 	
 	//this.update();
 };
@@ -36025,7 +36025,6 @@ THREE.TransHelper.prototype.constructor = THREE.TransHelper;
 THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
-
 		
 		if (this.latestTrans.length == 0 || this.latestTrans.length != this.parents.length) {
 			this.hasTrans = true;
@@ -36047,14 +36046,13 @@ THREE.TransHelper.prototype.update = ( function () {
 				this.hasTrans = false;
 			}
 		}
-		
-		if(this.hasTrans == true){
-			console.log("njet");
+		//console.log(this.hasTrans);
+		if(this.hasTrans){
+			//console.log("njet");
 			for(var i = 0; i < this.line.length; i++){
 			 	this.parents[i].remove(this.line[i]);
 			}
-
-
+			
 			var test = new Array();
 			var temp = new THREE.Vector3();
 			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
@@ -36083,6 +36081,7 @@ THREE.TransHelper.prototype.update = ( function () {
 			var axis = new THREE.AxisHelper(1);
 			this.parents[2].add(axis);
 			this.hasTrans = false;
+			//console.log(this.hasTrans);
 
 			//console.log(this.parents);
 		}
