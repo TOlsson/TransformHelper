@@ -98,7 +98,7 @@
 		moonNode.add( moonMesh );
 
 
-		helper = new THREE.TransformHelper(earthOrbiter,-1);
+		helper = new THREE.TransformHelper(earthNode,1);
 //		Ahelper= new THREE.AxisHelper(5);
 //		earthOrbiter.add(Ahelper);
 
@@ -158,6 +158,7 @@
 		sunMesh.scale.y = 2.0;
 		sunMesh.scale.z = 2.0;
 		earthNode.position.x = 10;
+		earthNode.position.y = 4;
 		//earthNode.rotation.y += 0.02 //oneTurn * deltaTime; // Moon rotation
 		earthOrbiter.rotation.y += 0.01 //oneTurn / 27.3 * deltaTime; // Moon orbit
 		moonNode.position.x = 3;
