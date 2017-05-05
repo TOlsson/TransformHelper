@@ -35977,30 +35977,31 @@ THREE.PaintScale = function (object) {
 
 	this.obj = object;
 	
-	// create materials
-	this.myRed = new THREE.LineBasicMaterial( { color: 0xff0000} );
-	this.myGreen = new THREE.LineBasicMaterial( { color: 0x00ff00 } ); 
-	this.myBlue = new THREE.LineBasicMaterial( { color: 0x0000ff } ); 
-	
 	var arrowLength = 3;
 
-	var start = new THREE.Vector3( 5, 0, 0 );
-	var start2 = new THREE.Vector3( -5, 0, 0 ); 
-	
-	
-	var start3 = new THREE.Vector3( 2 , 0, 0 );
-	var start4 = new THREE.Vector3( -2 , 0, 0 );
-	
+	var negStart = 5,
+		   posStart = 2;
 	
 	this.arrows= new Array();
 	
-	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), start, arrowLength, 0xff0000 )  ); // neg X 
-	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ), start2, arrowLength, 0xff0000 )  ); // neg X2
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( negStart, 0, 0 ), arrowLength, 0xff0000 )  ); // neg X 
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ),  new THREE.Vector3( -negStart, 0, 0 ) , arrowLength, 0xff0000 )  ); // neg X2
 	
-	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ), start3, arrowLength, 0xff0000 )  ); // neg X 
-	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), start4, arrowLength, 0xff0000 )  ); // neg X2
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ), new THREE.Vector3( posStart , 0, 0 ) , arrowLength, 0xff0000 )  ); // pos X 
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( -posStart , 0, 0 ), arrowLength, 0xff0000 )  ); // pos X2
 	
-
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, -1, 0 ), new THREE.Vector3( 0, negStart, 0 ), arrowLength, 0x00ff00 )  ); // neg Y
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 1, 0 ), new THREE.Vector3( 0, -negStart, 0 ), arrowLength, 0x00ff00 )  ); // neg Y2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 1, 0 ), new THREE.Vector3( 0, posStart, 0 ), arrowLength, 0x00ff00 )  ); // pos Y
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, -1, 0 ), new THREE.Vector3( 0, -posStart, 0 ), arrowLength, 0x00ff00 )  ); // pos Y2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, -1 ), new THREE.Vector3( 0, 0, negStart ), arrowLength, 0x0000ff )  ); // neg Z
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, 1 ), new THREE.Vector3( 0, 0, -negStart ), arrowLength, 0x0000ff )  ); // neg Z2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, 1 ), new THREE.Vector3( 0, 0, posStart ), arrowLength, 0x0000ff )  ); // pos Z
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, -1 ), new THREE.Vector3( 0, 0, -posStart ), arrowLength, 0x0000ff )  ); // pos Z2
+	
 
 }
 
@@ -36010,35 +36011,45 @@ THREE.PaintScale.prototype.update = ( function () {
 	return function update(scaleHelper) {
 		
 		
-	for (i = 0; i < this.arrows.length; i++){
-		this.obj.remove(this.arrows[i]);
-	}
-	
-	
-	if(  scaleHelper.hasScaleNegative.x )
-	{
+		for (i = 0; i < this.arrows.length; i++){
+			this.obj.remove(this.arrows[i]);
+		}
 		
-			this.obj.add( this.arrows[0] );
-			this.obj.add( this.arrows[1] );
-	}
-	else if( scaleHelper.hasScalePositive.x  )  
-	{
-			this.obj.add( this.arrows[2] );
-			this.obj.add( this.arrows[3] );
-	}
-	
-	if(  scaleHelper.hasScale.y )
-	{
-
-
-	}
-	if( scaleHelper.hasScale.z )
-	{
-
 		
-	}
+		if(  scaleHelper.hasScaleNegative.x )
+		{
+			
+				this.obj.add( this.arrows[0] );
+				this.obj.add( this.arrows[1] );
+		}
+		else if( scaleHelper.hasScalePositive.x  )  
+		{
+				this.obj.add( this.arrows[2] );
+				this.obj.add( this.arrows[3] );
+		}
+		
+		if(  scaleHelper.hasScaleNegative.y )
+		{
+				this.obj.add( this.arrows[4] );
+				this.obj.add( this.arrows[5] );
+		}
+		else if( scaleHelper.hasScalePositive.y )  
+		{
+				this.obj.add( this.arrows[6] );
+				this.obj.add( this.arrows[7] );
+		}
+		
+		if(  scaleHelper.hasScaleNegative.z )
+		{
+				this.obj.add( this.arrows[8] );
+				this.obj.add( this.arrows[9] );
+		}
+		else if( scaleHelper.hasScalePositive.z )  
+		{
+				this.obj.add( this.arrows[10] );
+				this.obj.add( this.arrows[11] );
+		}
 
-	
 	}
 
 }() );

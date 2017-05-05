@@ -35971,34 +35971,38 @@ THREE.PaintRot.prototype.update = ( function () {
 }() );
 
 
+/**
+ * @author Sara Olsson osv
+ */
 
 THREE.PaintScale = function (object) {
 
 	this.obj = object;
 	
-	// create materials
-	this.myRed = new THREE.LineBasicMaterial( { color: 0xff0000} );
-	this.myGreen = new THREE.LineBasicMaterial( { color: 0x00ff00 } ); 
-	this.myBlue = new THREE.LineBasicMaterial( { color: 0x0000ff } ); 
-	
-
-
-	var start = new THREE.Vector3( 5, 0, 0 );
-	var to = new THREE.Vector3( 1, 0, 0 );
-	
-	var start2 = new THREE.Vector3( -5, 0, 0 );
-	var to2 = new THREE.Vector3( -1, 0, 0 );
-	
-	var direction = to.clone().sub(start);
-	var length = direction.length();
-	
-	var direction2 = to2.clone().sub(start2);
-	var length2 = direction.length();
-	
-	
 	var arrowLength = 3;
-	this.arrowHelper = new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), start, arrowLength, 0xff0000 );
-	this.arrowHelper2 = new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ), start2, arrowLength, 0xff0000 );
+
+	var negStart = 5,
+		   posStart = 2;
+	
+	this.arrows= new Array();
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( negStart, 0, 0 ), arrowLength, 0xff0000 )  ); // neg X 
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ),  new THREE.Vector3( -negStart, 0, 0 ) , arrowLength, 0xff0000 )  ); // neg X2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ), new THREE.Vector3( posStart , 0, 0 ) , arrowLength, 0xff0000 )  ); // pos X 
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( -posStart , 0, 0 ), arrowLength, 0xff0000 )  ); // pos X2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, -1, 0 ), new THREE.Vector3( 0, negStart, 0 ), arrowLength, 0x00ff00 )  ); // neg Y
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 1, 0 ), new THREE.Vector3( 0, -negStart, 0 ), arrowLength, 0x00ff00 )  ); // neg Y2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 1, 0 ), new THREE.Vector3( 0, posStart, 0 ), arrowLength, 0x00ff00 )  ); // pos Y
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, -1, 0 ), new THREE.Vector3( 0, -posStart, 0 ), arrowLength, 0x00ff00 )  ); // pos Y2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, -1 ), new THREE.Vector3( 0, 0, negStart ), arrowLength, 0x0000ff )  ); // neg Z
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, 1 ), new THREE.Vector3( 0, 0, -negStart ), arrowLength, 0x0000ff )  ); // neg Z2
+	
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, 1 ), new THREE.Vector3( 0, 0, posStart ), arrowLength, 0x0000ff )  ); // pos Z
+	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 0, 0, -1 ), new THREE.Vector3( 0, 0, -posStart ), arrowLength, 0x0000ff )  ); // pos Z2
 
 
 }
@@ -36009,47 +36013,45 @@ THREE.PaintScale.prototype.update = ( function () {
 	return function update(scaleHelper) {
 		
 	
-	if(  scaleHelper.hasScale.x )
-	{
-		
-		/*
-			if(this.obj.parent != null){
-			this.obj.parent.add( this.redMesh );
-		}else{
+			for (i = 0; i < this.arrows.length; i++){
+				this.obj.remove(this.arrows[i]);
+			}
 			
-		}*/
-		//this.obj.add( this.redMesh );
-		
-			this.obj.add( this.arrowHelper );
-			this.obj.add( this.arrowHelper2 );
-		
-	}
-	if(  scaleHelper.hasScale.y )
-	{
+			
+			if(  scaleHelper.hasScaleNegative.x )
+			{
+				
+					this.obj.add( this.arrows[0] );
+					this.obj.add( this.arrows[1] );
+			}
+			else if( scaleHelper.hasScalePositive.x  )  
+			{
+					this.obj.add( this.arrows[2] );
+					this.obj.add( this.arrows[3] );
+			}
+			
+			if(  scaleHelper.hasScaleNegative.y )
+			{
+					this.obj.add( this.arrows[4] );
+					this.obj.add( this.arrows[5] );
+			}
+			else if( scaleHelper.hasScalePositive.y )  
+			{
+					this.obj.add( this.arrows[6] );
+					this.obj.add( this.arrows[7] );
+			}
+			
+			if(  scaleHelper.hasScaleNegative.z )
+			{
+					this.obj.add( this.arrows[8] );
+					this.obj.add( this.arrows[9] );
+			}
+			else if( scaleHelper.hasScalePositive.z )  
+			{
+					this.obj.add( this.arrows[10] );
+					this.obj.add( this.arrows[11] );
+			}
 
-
-	}
-	if( scaleHelper.hasScale.z )
-	{
-
-		
-	}
-	
-	/*
-	if(  scaleHelper.hasScale.x )
-	{	this.redLine = new THREE.Line( this.redGeometry, this.myRed );	
-		this.obj.add( this.redLine ); }
-		
-	if(  scaleHelper.hasScale.y )
-	{	this.greenLine = new THREE.Line( this.greenGeometry, this.myGreen );	
-		this.obj.add( this.greenLine ); }
-		
-	if(  scaleHelper.hasScale.z )
-	{	this.blueLine = new THREE.Line( this.blueGeometry, this.myBlue );	
-	this.obj.add( this.blueLine ); }
-	*/
-
-	
 	}
 
 }() );
@@ -36196,6 +36198,9 @@ THREE.ScaleHelper = function (scale) {
 	this.latestscale = new THREE.Vector3(this.myscale.x, this.myscale.y, this.myscale.z); //The leatest scale
 	this.hasScale = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has a scale transform
 	
+	this.hasScalePositive = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has a scale transform
+	this.hasScaleNegative = new THREE.Vector3(0,0,0); //A vector that has true (1) or false(0) for each axis (x,y,z) if the object has a scale transform
+	
 	//this.update();
 
 };
@@ -36213,6 +36218,9 @@ THREE.ScaleHelper.prototype.update = ( function () {
 		//A vector that has true (1) or false(0) for each axis (x,y,z) if the object has rootation.
 		//this.hasScale = new THREE.Vector3((diffscale.x != 0), (diffscale.y != 0), (diffscale.z != 0));
 	    this.hasScale = new THREE.Vector3((diffscale.x > 0 || diffscale.x < 0), (diffscale.y > 0 || diffscale.y < 0), (diffscale.z > 0 || diffscale.z < 0));
+		
+		this.hasScalePositive = new THREE.Vector3(diffscale.x > 0 , diffscale.y > 0 , diffscale.z > 0 );
+		this.hasScaleNegative = new THREE.Vector3(diffscale.x < 0 , diffscale.y < 0 , diffscale.z < 0 );
 		
 		//To update the current scale as the latest so we can compare it with the new next time.
 		this.latestscale.x = this.myscale.x;
