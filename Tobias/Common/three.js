@@ -36003,7 +36003,7 @@ THREE.ScaleHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author Tobias Olsson, Emma Nilsson osv .. 
+ * @author Tobias Olsson, Emma Nilsson, Sara Olsson and Erik Åkesson 
  */
  
 THREE.TransHelper = function (trans, parents) {
