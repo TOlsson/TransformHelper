@@ -35886,7 +35886,7 @@ function getParents(obj, arr) {
 // File:xxx/y/zz/TransFormHelper.js
 
 /**
- * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
+ * @author Emma Nilsson, Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
 THREE.TransformHelper = function ( myObj ){
@@ -36003,7 +36003,7 @@ THREE.ScaleHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author Tobie osv .. 
+ * @author Tobias Olsson, Emma Nilsson osv .. 
  */
  
 THREE.TransHelper = function (trans, parents) {
@@ -36013,6 +36013,7 @@ THREE.TransHelper = function (trans, parents) {
 	this.parents = parents;
 	this.line = new Array();
 	this.latestTrans = new Array();
+	this.latestLength = new Array();
 	this.hasTrans = false;
 	
 	//this.update();
@@ -36026,21 +36027,33 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 
-		
+		//checks if the object has been translated
 		if (this.latestTrans.length == 0 || this.latestTrans.length != this.parents.length) {
 			this.hasTrans = true;
-			console.log("holA");
 		}
 		else if (this.latestTrans.length == this.parents.length){
+
+			//varaiables to compare
 			var count = 0;
+			var nya = new Array();
+			var temp = new THREE.Vector3();
 			
 			for (var i = 0; i < this.parents.length; i++){
-				if (this.latestTrans[i].equals(this.parents[i].getWorldPosition())){
-					count++;
+				if(i != 0)
+				{
+					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
+					nya[i] = this.parents[i-1].position.distanceTo(temp);
+
+					//if the length of the vectors are equal, add to count
+					if (this.latestLength[i] == nya[i]){
+						count++;
+					}
 				}
+
 			}
 
-			if (count != this.latestTrans.length){
+			//if all distances are not equal
+			if (count != this.latestTrans.length-1){
 				this.hasTrans = true;
 			}
 			else {
@@ -36048,43 +36061,48 @@ THREE.TransHelper.prototype.update = ( function () {
 			}
 		}
 		
+		//if translation has occurred
 		if(this.hasTrans == true){
-			console.log("njet");
+			
+			//erase previous lines
 			for(var i = 0; i < this.line.length; i++){
 			 	this.parents[i].remove(this.line[i]);
 			}
 
-
-			var test = new Array();
+			//variables to compare
+			var geometry = new Array();
 			var temp = new THREE.Vector3();
+			this.latestLength[0] = 0;
 			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			
+			//go through all objects to create lines between them
 			for(var i = 0; i < this.parents.length; i++){
-				test[i] = new THREE.Geometry();
+
+				geometry[i] = new THREE.Geometry();
 				this.latestTrans[i] = this.parents[i].position;
+
+				//zero does not need to be checked
 				if(i != 0){
+					//create vertices for the line
 					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
-					test[i].vertices.push(
+					geometry[i].vertices.push(
 						this.parents[i-1].position,
 						temp
 					);
+					//calculate the length of the line
+					this.latestLength[i] = this.parents[i-1].position.distanceTo(temp);
 				}
-				else{
-					// temp.addVectors(this.parents[0].position, this.parents[i].position);
-					// test[i].vertices.push(
-						// this.parents[0].position,
-						// temp
-					// );
-				}
-				this.line[i] = new THREE.LineSegments(test[i], material);
+
+				//create line and add to the scene
+				this.line[i] = new THREE.LineSegments(geometry[i], material);
 				this.parents[i].add(this.line[i]);
 
+
 			}
-			var axis = new THREE.AxisHelper(1);
-			this.parents[2].add(axis);
+			//reset translation
 			this.hasTrans = false;
 
-			//console.log(this.parents);
+
 		}
 		
 		return this;
