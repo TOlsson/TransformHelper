@@ -35923,9 +35923,9 @@ THREE.PaintRot = function (object) {
 
 THREE.PaintRot.prototype.update = ( function () {
 
-	return function update(rot) {
-	
-	 /*
+	return function update(rot, istranslated/*, parentRot*/) {
+
+		/*Används endast när man har dynamiskt stora cirklar
 		if(this.firstUpdate )
 		{
 			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
@@ -35938,6 +35938,39 @@ THREE.PaintRot.prototype.update = ( function () {
 		}
 
 	*/
+
+		//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
+		// this.obj.parent.remove(this.circle);
+		// if(istranslated && parentRot.hasRot.length() != 0){
+		// 	this.obj.parent.remove(this.circle);
+		// 	//Make circle
+		// 	var geometry = new THREE.CircleGeometry( 10, 64 );
+		// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
+
+			//Måste ha om den är translaterad o skit för att testa
+			// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
+			//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
+			// 		//Do nothing
+			// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
+			// 		this.circle.rotation.x = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
+			// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
+			// 		//Do nothing
+			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
+			// 		this.circle.rotation.y = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
+			// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
+			// 		this.circle.rotation.x = Math.PI / 2;
+			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
+			// 		this.circle.rotation.y = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }
+		// }
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
@@ -36073,55 +36106,80 @@ function getParents(obj, arr, num) {
 // File:xxx/y/zz/TransFormHelper.js
 
 /**
+ * A helper that´s visualise transformations such as Translation,  Rotation and Scaling
+ *
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
+ *
+ * @param {THIS_OBJECT} myObj - The object that the helper should follow  DEFAULT = Undefined
+ * @param {} numprarent - Number of parent that the helper also should show transformations for. 0 means nothing, -1 means all parents, and any positive number means that number of parents. DEFAULT = -1
+ * @param {SHOW_ROT}  showRot - If the helper should show rotation. 0 means not show, any other means show. DEFAULT = 1
+ * @param {SHOW_SCALE} showScale - If the helper should show scaling. 0 means not show, any other means show.  DEFAULT = 1
+ * @param {SHOW_TRANS} showTrans - If the helper should show translation. 0 means not show, any other means show.  DEFAULT = 1
+ *
  */
 
-THREE.TransformHelper = function ( myObj, numparent){
+THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTrans){
 
 	numparent = ( numparent !== undefined ) ? numparent : -1;
+	showRot = ( showRot !== undefined ) ? showRot : 1;
+	showScale = ( showScale !== undefined ) ? showScale : 1;
+	showTrans = ( showTrans !== undefined ) ? showTrans : 1;
 	this.object = myObj;
-	
+
+
 	this.object.rot = new Array();
-	this.object.rot.push(new THREE.RotHelper(this.object.rotation));
-//	this.object.scale = new THREE.ScaleHelper(this.object.scale);
-	this.paint = new Array();
-	this.paint.push(new THREE.PaintRot(this.object ));
-	
-	this.object.scales = new Array(); 
-	this.object.scales.push(new THREE.ScaleHelper(this.object.scale)); // add first object (this)  in array
+	this.paintRot = new Array();
+	this.object.scales = new Array();
 	this.paintScales = new Array();
-	this.paintScales.push(new THREE.PaintScale(this.object));
 
 	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
-	for (i = 0; i < this.parents.length; i++){
-		this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
-		this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
-		this.object.scales.push(new THREE.ScaleHelper(this.parents[i].scale)); // scale helper to all parents
-		this.paintScales.push(new THREE.PaintScale(this.parents[i])); //ser fult ut när alla körs
+	console.log(this.parents);
+	if(showRot){
+		this.object.rot.push(new THREE.RotHelper(this.object.rotation));
+		this.paintRot.push(new THREE.PaintRot(this.object ));
+		for (i = 0; i < this.parents.length; i++){
+			this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+			this.paintRot.push(new THREE.PaintRot(this.parents[i]));
+		}
 	}
-	
-}
+	if(showScale){
+		this.object.scales.push(new THREE.ScaleHelper(this.object.scale));
+		this.paintScales.push(new THREE.PaintScale(this.object));
+		for (i = 0; i < this.parents.length; i++){
+			this.object.scales.push(new THREE.ScaleHelper(this.parents[i].scale)); // scale helper to all parents
+			this.paintScales.push(new THREE.PaintScale(this.parents[i]));
+		}
+	}
+	if(showTrans){
 
+	}
+
+
+
+	// for (i = 0; i < this.parents.length; i++){
+	// 	this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
+	// 	this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
+	// }
+}
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
 THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
 
 THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
-		
+
 		for(var i = 0; i < this.object.rot.length; i++){
 			this.object.rot[i].update();
-			this.paint[i].update(this.object.rot[i]); //ser fult ut när alla körs
+			this.paintRot[i].update(this.object.rot[i], 1/*, this.object.rot[i+1]*/);
 			//console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
 		}
-		//this.paint[0].update(this.object.rot[0]);
 		
 		for(var i = 0; i < this.object.scales.length; i++){
 			
 			this.object.scales[i].update();
 			this.paintScales[i].update(this.object.scales[i]); 
 			
-			console.log("Object scales " + i + " | " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
+			//console.log("Object scales " + i + " | " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
 			
 		} 
 	}
