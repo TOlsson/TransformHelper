@@ -35907,9 +35907,9 @@ THREE.PaintRot = function (object) {
 	this.translateFromParent.add(this.blueSphereRotNode);
 	this.translateFromParent.add(this.greenSphereRotNode);
 
-	this.redSphere.position.y = 0.75;
-	this.blueSphere.position.x = 0.75;
-	this.greenSphere.position.z = 0.75;
+	this.redSphere.position.y = radius;
+	this.blueSphere.position.x = radius;
+	this.greenSphere.position.z = radius;
 
 	//If the object dont have a parent (object == Scenrot)
 	if(this.obj.parent != null){
@@ -35947,29 +35947,29 @@ THREE.PaintRot.prototype.update = ( function () {
 		// 	var geometry = new THREE.CircleGeometry( 10, 64 );
 		// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
 
-			//Måste ha om den är translaterad o skit för att testa
-			// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
-			//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
-			// 		//Do nothing
-			// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
-			// 		this.circle.rotation.x = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
-			// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
-			// 		//Do nothing
-			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
-			// 		this.circle.rotation.y = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
-			// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
-			// 		this.circle.rotation.x = Math.PI / 2;
-			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
-			// 		this.circle.rotation.y = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }
+		//Måste ha om den är translaterad o skit för att testa
+		// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
+		//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
+		// 		//Do nothing
+		// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
+		// 		this.circle.rotation.x = Math.PI / 2;
+		// 	}
+		// 	this.obj.parent.add(this.circle);
+		// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
+		// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
+		// 		//Do nothing
+		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
+		// 		this.circle.rotation.y = Math.PI / 2;
+		// 	}
+		// 	this.obj.parent.add(this.circle);
+		// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
+		// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
+		// 		this.circle.rotation.x = Math.PI / 2;
+		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
+		// 		this.circle.rotation.y = Math.PI / 2;
+		// 	}
+		// 	this.obj.parent.add(this.circle);
+		// }
 		// }
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
@@ -36108,14 +36108,14 @@ function getParents(obj, arr, num) {
 /**
  * A helper that´s visualise transformations such as Translation,  Rotation and Scaling
  *
+ * @param {Object3D} obj - The object that the helper should follow  DEFAULT = Undefined
+ * @param {Int} numParent - Number of parent that the helper also should show transformations for. 0 means nothing, -1 means all parents, and any positive number means that number of parents. DEFAULT = -1
+ * @param {Boolean} showRot - If the helper should show rotation. false -> show, true -> show. DEFAULT = 1
+ * @param {Boolean} showScale - If the helper should show scaling. false -> show, true -> show.  DEFAULT = 1
+ * @param {Boolean} showTrans - If the helper should show translation. false -> show, true -> show.  DEFAULT = 1
+ * @constructor
+ *
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
- *
- * @param {THIS_OBJECT} myObj - The object that the helper should follow  DEFAULT = Undefined
- * @param {} numprarent - Number of parent that the helper also should show transformations for. 0 means nothing, -1 means all parents, and any positive number means that number of parents. DEFAULT = -1
- * @param {SHOW_ROT}  showRot - If the helper should show rotation. 0 means not show, any other means show. DEFAULT = 1
- * @param {SHOW_SCALE} showScale - If the helper should show scaling. 0 means not show, any other means show.  DEFAULT = 1
- * @param {SHOW_TRANS} showTrans - If the helper should show translation. 0 means not show, any other means show.  DEFAULT = 1
- *
  */
 
 THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTrans){
@@ -36133,7 +36133,7 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 	this.paintScales = new Array();
 
 	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
-	console.log(this.parents);
+
 	if(showRot){
 		this.object.rot.push(new THREE.RotHelper(this.object.rotation));
 		this.paintRot.push(new THREE.PaintRot(this.object ));
