@@ -36015,6 +36015,7 @@ THREE.TransHelper = function (trans, parents) {
 	this.latestTrans = new Array();
 	this.latestLength = new Array();
 	this.hasTrans = false;
+	this.directionTrans = new Array();
 	
 	//this.update();
 };
@@ -36039,27 +36040,121 @@ THREE.TransHelper.prototype.update = ( function () {
 			var temp = new THREE.Vector3();
 			
 			for (var i = 0; i < this.parents.length; i++){
+				var diffTrans = new THREE.Vector3;
 				if(i != 0)
 				{
+					diffTrans.subVectors(this.latestTrans[i], this.parents[i-1].position);
 					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
 					nya[i] = this.parents[i-1].position.distanceTo(temp);
-
+					this.directionTrans[i] = new THREE.Vector3(false, false, false);
+					console.log("wow");
+					console.log(this.latestTrans[i]);
+					console.log(this.parents[i-1].position);
+					console.log("nja00");
+					//console.log(diffTrans);
+					
 					//if the length of the vectors are equal, add to count
 					if (this.latestLength[i] == nya[i]){
 						count++;
+						this.directionTrans[i].x = false;
+						this.directionTrans[i].y = false;
+						this.directionTrans[i].z = false;
+						
 					}
-				}
+					
+					else {
+						this.directionTrans[i] = new THREE.Vector3(false, false, false);
+						
+						
+						if(diffTrans.x > 0 || diffTrans.x < 0) {
+							this.directionTrans[i].x = true;
+						}
+						
+						else{
+							this.directionTrans[i].x = false;
+						}
+						
+						if(diffTrans.y > 0 || diffTrans.y < 0) {
+							this.directionTrans[i].y = true;
+						}
+						
+						else{
+							this.directionTrans[i].y = false;
+						}
+						
+						if(diffTrans.z > 0 || diffTrans.z < 0) {
+							this.directionTrans[i].z = true;
+						}
+						
+						else{
+							this.directionTrans[i].z = false;
+						}
+					}
 
+				}
+				else if(i == 0){
+					diffTrans.subVectors(this.latestTrans[i], this.obj.position);
+					temp.addVectors(this.obj.position, this.parents[i].position);
+					nya[i] = this.obj.position.distanceTo(temp);
+					this.directionTrans[i] = new THREE.Vector3(false, false, false);
+					
+					//console.log(diffTrans);
+					
+					if (this.latestLength[i] == nya[i]){
+						count++;
+						this.directionTrans[i].x = false;
+						this.directionTrans[i].y = false;
+						this.directionTrans[i].z = false;
+						
+					}
+					
+					else {
+						this.directionTrans[i] = new THREE.Vector3(false, false, false);
+						
+						
+						if(diffTrans.x > 0 || diffTrans.x < 0) {
+							this.directionTrans[i].x = true;
+						}
+						
+						else{
+							this.directionTrans[i].x = false;
+						}
+						
+						if(diffTrans.y > 0 || diffTrans.y < 0) {
+							this.directionTrans[i].y = true;
+						}
+						
+						else{
+							this.directionTrans[i].y = false;
+						}
+						
+						if(diffTrans.z > 0 || diffTrans.z < 0) {
+							this.directionTrans[i].z = true;
+						}
+						
+						else{
+							this.directionTrans[i].z = false;
+						}
+					}
+
+				}
+			//console.log(this.parents[i].position);
 			}
 
 			//if all distances are not equal
-			if (count != this.latestTrans.length-1){
+			if (count != this.latestTrans.length){
 				this.hasTrans = true;
 			}
 			else {
 				this.hasTrans = false;
 			}
+			
+		
 		}
+		//console.log(this.obj.position);
+		console.log(this.directionTrans);
+		//console.log(this.latestTrans);
+		
 
 		//if translation has occurred
 		if(this.hasTrans == true){
@@ -36072,17 +36167,17 @@ THREE.TransHelper.prototype.update = ( function () {
 			//variables to compare
 			var geometry = new Array();
 			var temp = new THREE.Vector3();
-			this.latestLength[0] = 0;
 			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
 			
 			//go through all objects to create lines between them
 			for(var i = 0; i < this.parents.length; i++){
 
 				geometry[i] = new THREE.Geometry();
-				this.latestTrans[i] = this.parents[i].position;
+				
 
 				//zero does not need to be checked
 				if(i != 0){
+					this.latestTrans[i] = this.parents[i].position;
 					//create vertices for the line
 					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
 					geometry[i].vertices.push(
@@ -36091,6 +36186,15 @@ THREE.TransHelper.prototype.update = ( function () {
 					);
 					//calculate the length of the line
 					this.latestLength[i] = this.parents[i-1].position.distanceTo(temp);
+				}
+				else if(i == 0){
+					this.latestTrans[i] = this.obj.position;
+					temp.addVectors(this.obj.position, this.parents[i].position);
+					geometry[i].vertices.push(
+						this.obj.position,
+						temp
+					);
+					this.latestLength[i] = this.obj.position.distanceTo(temp);
 				}
 
 				//create line and add to the scene
