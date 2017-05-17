@@ -76,11 +76,11 @@
 		// Mesh
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
-		materialBox.wireframe = true;
+		materialBox.wireframe = false;
 
-		sunMesh = new THREE.Mesh( geometryBox, materialBox );
-		earthMesh = new THREE.Mesh( geometryBox, materialBox );
-		moonMesh = new THREE.Mesh( geometryBox, materialBox );
+		sunMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+		earthMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+		moonMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
 
 
 
@@ -149,9 +149,9 @@
 		
 		
 		
-		earthNode.scale.x += 0.001;
-		earthNode.scale.y += 0.001;
-		earthNode.scale.z += 0.001;
+//		earthNode.scale.x += 0.001;
+//		earthNode.scale.y += 0.001;
+//		earthNode.scale.z += 0.001;
 		
 		/*
 		sunNode.scale.x -= 0.001;
