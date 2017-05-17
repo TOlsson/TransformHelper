@@ -35923,54 +35923,57 @@ THREE.PaintRot = function (object) {
 
 THREE.PaintRot.prototype.update = ( function () {
 
-	return function update(rot, istranslated/*, parentRot*/) {
+	return function update(rot, istranslated, parentRot) {
+
 
 		/*Används endast när man har dynamiskt stora cirklar
-		if(this.firstUpdate )
-		{
-			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
-			this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
-			this.redSphere.position.y = bbox.getBoundingSphere().radius;
-			this.blueSphere.position.x = bbox.getBoundingSphere().radius;
-			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+		 if(this.firstUpdate )
+		 {
+		 var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+		 this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+		 this.redSphere.position.y = bbox.getBoundingSphere().radius;
+		 this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+		 this.greenSphere.position.z = bbox.getBoundingSphere().radius;
 
-			this.firstUpdate  = false;
+		 this.firstUpdate  = false;
+		 }
+
+		 */
+
+		if(parentRot != undefined){ //Fult men fungerar och löser svårlöst problem
+			//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
+			// this.obj.parent.remove(this.circle);
+			// if(istranslated && parentRot.hasRot.length() != 0){
+			// 	this.obj.parent.remove(this.circle);
+			// 	//Make circle
+			// 	var geometry = new THREE.CircleGeometry( 10, 64 );
+			// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
+
+			//Måste ha om den är translaterad o skit för att testa
+			// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
+			//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
+			// 		//Do nothing
+			// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
+			// 		this.circle.rotation.x = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
+			// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
+			// 		//Do nothing
+			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
+			// 		this.circle.rotation.y = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
+			// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
+			// 		this.circle.rotation.x = Math.PI / 2;
+			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
+			// 		this.circle.rotation.y = Math.PI / 2;
+			// 	}
+			// 	this.obj.parent.add(this.circle);
+			// }
+			// }
 		}
-
-	*/
-
-		//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
-		// this.obj.parent.remove(this.circle);
-		// if(istranslated && parentRot.hasRot.length() != 0){
-		// 	this.obj.parent.remove(this.circle);
-		// 	//Make circle
-		// 	var geometry = new THREE.CircleGeometry( 10, 64 );
-		// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
-
-		//Måste ha om den är translaterad o skit för att testa
-		// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
-		//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
-		// 		//Do nothing
-		// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
-		// 		this.circle.rotation.x = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
-		// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
-		// 		//Do nothing
-		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
-		// 		this.circle.rotation.y = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
-		// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
-		// 		this.circle.rotation.x = Math.PI / 2;
-		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
-		// 		this.circle.rotation.y = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }
-		// }
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
@@ -36102,6 +36105,18 @@ function getParents(obj, arr, num) {
 	else return arr;
 };
 
+function setMeshesToWire(obj){
+
+	if(obj.type == "Mesh")
+		obj.material.wireframe = true;
+
+	var arr = obj.children;
+	for(var i = 0; i < arr.length; i++){
+		if(arr[i].position.length() == 0)
+			setMeshesToWire(arr[i]);
+	}
+}
+
 
 // File:xxx/y/zz/TransFormHelper.js
 
@@ -36125,7 +36140,7 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 	showScale = ( showScale !== undefined ) ? showScale : 1;
 	showTrans = ( showTrans !== undefined ) ? showTrans : 1;
 	this.object = myObj;
-
+	this.checkifwireframe = true;
 
 	this.object.rot = new Array();
 	this.paintRot = new Array();
@@ -36151,15 +36166,9 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 		}
 	}
 	if(showTrans){
-
+		this.object.trans = new THREE.TransHelper(this.object, this.parents); //???
 	}
 
-
-
-	// for (i = 0; i < this.parents.length; i++){
-	// 	this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
-	// 	this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
-	// }
 }
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
 THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
@@ -36168,20 +36177,27 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 
+		if(this.checkifwireframe){ //Needs to be in the update to have the posistion set
+			setMeshesToWire(this.object); //Check this.object and non translated children
+			for (var i = 0; i < this.parents.length; i++){
+				setMeshesToWire(this.parents[i]); //Check all parents and non translated children
+			}
+			this.checkifwireframe = false;
+		}
+
 		for(var i = 0; i < this.object.rot.length; i++){
 			this.object.rot[i].update();
-			this.paintRot[i].update(this.object.rot[i], 1/*, this.object.rot[i+1]*/);
+			this.paintRot[i].update(this.object.rot[i], 1, this.object.rot[i+1]);
 			//console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
 		}
 		
 		for(var i = 0; i < this.object.scales.length; i++){
-			
 			this.object.scales[i].update();
-			this.paintScales[i].update(this.object.scales[i]); 
-			
+			this.paintScales[i].update(this.object.scales[i]);
 			//console.log("Object scales " + i + " | " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
-			
-		} 
+		}
+
+		//this.object.trans.update();
 	}
 
 }() );
