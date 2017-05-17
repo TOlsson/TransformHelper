@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Three.js Planetary system</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<div id="container">
+	<div id="infotext" style="position: absolute;
+    color: orange;">
+		<span id="rad">0 rad/s</span>
+		<br>
+		<span id="avgrad">0 avg rad/s</span>
+		<br>
+		<span id="fps">0 fps</span>
+		<br>
+		<span id="rotspeed">rotspeed 0 rad</span>
+	</div>
+</div>
+
+<!-- <script src="three.min.js"></script> -->
+<script src="three.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+<script>
+	// Lots of global variables. (This is JavaScript. No use complaining.)
+	var values;
+	var container;
+	var camera, scene, renderer;
+
+	var mouseX = 0, mouseY = 0;
+
+	var windowHalfX = window.innerWidth / 2;
+	var windowHalfY = window.innerHeight / 2;
+
+	// Object3D ("Group") nodes and Mesh nodes
+	// Object3D ("Group") nodes and Mesh nodes
+	var sceneRoot = new THREE.Group();
+	var sunNode = new THREE.Group();
+	var sunOrbiter = new THREE.Group();
+	var earthNode = new THREE.Group();
+	var earthOrbiter = new THREE.Group();
+	var moonNode = new THREE.Group();
+	var cameraNode = new THREE.Group();
+	var objectMesh;
+	
+	var marchNode = new THREE.Group();
+
+	//var objectMesh, objectMeshP1, objectMeshP2, objectMeshC1;
+	var helper;
+	var rotspeedx = 0;
+	var rotspeedy = 0;
+	var rotspeedz = 0;
+	var rotspeed = 0.03;
+
+
+	function onWindowResize() {
+		windowHalfX = window.innerWidth / 2;
+		windowHalfY = window.innerHeight / 2;
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+
+	function init() {
+
+
+		container = document.getElementById( 'container' );
+
+		camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
+		// camera.position.z = 10;
+
+		scene = new THREE.Scene();
+
+		// *************** GEOMETRIES **************************//
+
+		var sunGeo = new THREE.SphereGeometry(1,20,20);
+		var marchGeo = new THREE.SphereGeometry(1.5,20,20);
+		var earthGeo = new THREE.SphereGeometry(0.5,20,20);
+	
+	    // *************** TEXTURES **************************//
+		
+		var textureSun = new THREE.TextureLoader().load( 'images/sun.jpg' );
+		var textureMarch = new THREE.TextureLoader().load( 'images/planet-512.jpg' );
+		var textureEarth = new THREE.TextureLoader().load( 'images/earth.jpg' );
+		var map2 = new THREE.TextureLoader().load( 'images/metal.jpg' ); // ship material
+		
+		// *************** MATERIALS **************************//
+		
+		var materialSun = new THREE.MeshLambertMaterial( { map: textureSun, side: THREE.DoubleSide } );
+		var materialEarth = new THREE.MeshLambertMaterial( { map: textureEarth, side: THREE.DoubleSide } );
+		var materialMarch = new THREE.MeshLambertMaterial( { map: textureMarch, side: THREE.DoubleSide } );
+		var materialC = new THREE.MeshLambertMaterial( { map: map2, side: THREE.DoubleSide } );
+		
+		// *************** MESHES **************************//
+		
+		sun = new THREE.Mesh( sunGeo, materialSun );
+		earth = new THREE.Mesh( earthGeo, materialEarth );
+		march = new THREE.Mesh( marchGeo, materialMarch );
+		ship = new THREE.Mesh( new THREE.BoxGeometry(2, 0.3, 3, 1, 1, 1), materialC );
+		
+		// *************** GROUPS **************************//
+		
+		
+		/* *****************************************************/
+
+
+		  // ***************  SPACE sphere **************************//
+		  var mapSpace = new THREE.TextureLoader().load( 'images/space.jpg' );
+		  var spacesphereGeo = new THREE.SphereGeometry(50,20,20);
+		  var spacesphereMat = new THREE.MeshPhongMaterial();
+		  spacesphereMat.map = mapSpace;
+		 
+		  spacesphere = new THREE.Mesh(spacesphereGeo,spacesphereMat);
+		  
+		  spacesphere.material.side = THREE.DoubleSide; //spacesphere needs to be double sided as the camera is within the spacesphere
+		  
+		  spacesphere.material.map.wrapS = THREE.RepeatWrapping; 
+		  spacesphere.material.map.wrapT = THREE.RepeatWrapping;
+		  spacesphere.material.map.repeat.set( 5, 3);
+		  
+		  /* *****************************************************/
+	
+		 // ***************  LIGHTS **************************//
+		
+		//scene.add( new THREE.PointLight( 0xffffff ) ); 
+		//scene.add( new THREE.AmbientLight( 0x404040 ) );
+		scene.add( new THREE.AmbientLight( 0xffffff ) );
+
+		/* *****************************************************/
+		
+		// ***************  SCENE GRAPH **************************// 
+		
+		//scene.add(spacesphere);
+		
+		// Top-level node
+		scene.add( sceneRoot );
+		
+		sceneRoot.add( sunNode ); // translatiobn from scene root
+		sceneRoot.add( marchNode );
+		sceneRoot.add( ship );
+		ship.add( camera );
+		ship.add(spacesphere);
+		
+		sunNode.add( sun );
+		sunNode.add( earthNode );
+		earthNode.add( earth );
+		
+		marchNode.add( march );
+		
+
+		helper = new THREE.TransformHelper(earth);
+		
+		
+		// ***************  INIT TRANSFORMATIONS **************************// 
+		
+		sunNode.position.y = 3;
+		sunNode.position.x = -5;
+		
+		earthNode.position.x = 2;
+		
+		marchNode.position.y = 2;
+		marchNode.position.x = 7;
+		
+		/* ************************* TWEEN setup **************************/
+		
+		
+		position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+		target = { x : ship.position.x, y: ship.position.y, z: ship.position.x-5 };
+		tween = new TWEEN.Tween(position).to(target, 2000);
+		
+		rotationS = { x : ship.rotation.x, y: ship.rotation.y, z: ship.rotation.z };
+		rotationE = { x : ship.rotation.x, y: ship.rotation.y + Math.PI/4, z: ship.rotation.z };
+		
+		tweenRot = new TWEEN.Tween(rotationS).to(rotationE, 2000);
+		
+		tween.onUpdate(function(){
+			ship.position.x = position.x;
+			ship.position.y = position.y;
+			ship.position.z = position.z;
+		});
+		
+		tweenRot.onUpdate(function(){
+			
+			ship.rotation.x = rotationS.x;
+			ship.rotation.y = rotationS.y;
+			ship.rotation.z = rotationS.z;
+			
+		});
+		
+	// 	 tween.start();
+		// tweenRot.start();
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor( 0x000000 );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		container.appendChild( renderer.domElement );
+
+		window.addEventListener( 'resize', onWindowResize, false );
+	}
+
+	
+	var forward;
+	
+	function render() {
+	
+	TWEEN.update();
+	
+
+		forward = new THREE.Vector3(0, 0, 0);
+		forward.x = ship.position.x - camera.position.x;
+		forward.z = ship.position.z - camera.position.z;
+		
+		console.log(forward);
+		
+		/*
+		var matrix = new THREE.Matrix4();
+		matrix.extractRotation( ship.matrix );
+
+		var forward = new THREE.Vector3( 0, 0, 1 );
+		forward.applyMatrix4(matrix); */
+
+		window.onkeydown = function (e) {
+			var code = e.keyCode ? e.keyCode : e.which;
+			if (code === 38) { //up key
+				rotspeed += 0.01;
+			} else if (code === 40) { //down key
+				rotspeed -= 0.01;
+			} else if (code === 88) { //x key
+				if(!rotspeedx)
+					rotspeedx = rotspeed;
+				else
+					rotspeedx = 0;
+			} else if (code === 89) { //y key
+				if(!rotspeedy)
+					rotspeedy = rotspeed;
+				else
+					rotspeedy = 0;
+			} else if (code == 90) { //z key
+				if(!rotspeedz)
+					rotspeedz = rotspeed;
+				else
+					rotspeedz = 0;
+			} else if (code == 87) { //w key
+				
+				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				ship.position.add(forward); 
+				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				var tween = new TWEEN.Tween(position).to(target, 2000);
+				
+				tween.onUpdate(function(){
+					ship.position.x = position.x;
+					ship.position.y = position.y;
+					ship.position.z = position.z;
+				});
+				
+				 tween.start();
+				
+				// ship.position.sub(forward); // forward
+			}
+			else if (code == 83) { //s key
+			
+				
+			
+				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				
+				if( forward.x == 0 && forward.y == 0 && forward.z == 0 )
+					ship.position.sub(forward.sub(new THREE.Vector3( 0, 0, 1 )));
+				else
+					ship.position.sub(forward);
+				
+				
+				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				var tween = new TWEEN.Tween(position).to(target, 2000);
+				
+				tween.onUpdate(function(){
+					ship.position.x = position.x;
+					ship.position.y = position.y;
+					ship.position.z = position.z;
+				});
+				
+				tween.start();
+				
+			//	ship.position.add(forward); // backward
+			}
+			else if (code == 65) { //a key
+				
+				var rotationS = { x : ship.rotation.x, y: ship.rotation.y, z: ship.rotation.z };
+				var rotationE = { x : ship.rotation.x, y: ship.rotation.y + Math.PI/4, z: ship.rotation.z };
+		
+				var tweenRot = new TWEEN.Tween(rotationS).to(rotationE, 2000);
+			
+				tweenRot.onUpdate(function(){
+			
+					ship.rotation.x = rotationS.x;
+					ship.rotation.y = rotationS.y;
+					ship.rotation.z = rotationS.z;
+					
+				});
+			
+				tweenRot.start();
+				
+				//ship.rotation.y += 0.01;
+				
+				
+			} else if (code == 68) { //d key
+			
+			
+				var rotationS = { x : ship.rotation.x, y: ship.rotation.y, z: ship.rotation.z };
+				var rotationE = { x : ship.rotation.x, y: ship.rotation.y - Math.PI/4, z: ship.rotation.z };
+		
+				var tweenRot = new TWEEN.Tween(rotationS).to(rotationE, 2000);
+			
+				tweenRot.onUpdate(function(){
+			
+					ship.rotation.x = rotationS.x;
+					ship.rotation.y = rotationS.y;
+					ship.rotation.z = rotationS.z;
+					
+				});
+			
+				tweenRot.start();
+				//ship.rotation.y -= 0.01;
+			}
+
+		};
+
+
+		camera.position.y = 2;
+		camera.position.z = 10;
+		
+		// camera.position.z = ship.position.z + 10;
+
+		
+		// ***************  UPDATE TRANSFORMATIONS **************************// 
+		
+		earth.rotation.y += rotspeedy;
+		earth.rotation.x += rotspeedx;
+		earth.rotation.z += rotspeedz;
+		
+		spacesphere.rotation.y += 0.0008; // space rotation
+
+		sunNode.rotation.y += 0.01;
+		earth.rotation.y += 0.005;
+		march.rotation.y += 0.009;
+		
+	
+		
+		/* *****************************************************/
+		
+		
+
+		
+	
+		
+		helper.update();
+
+		document.getElementById("rotspeed").textContent = ("rotspeed" + rotspeed + "rad");
+		// Render the scene
+		renderer.render( scene, camera );
+	}
+
+
+	function animate() {
+		requestAnimationFrame( animate ); // Request to be called again for next frame
+		render();
+	}
+
+
+	init();    // Set up the scene
+	animate(); // Enter an infinite loop
+
+</script>
+</body>
+</html>
