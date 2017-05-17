@@ -35867,6 +35867,7 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 THREE.PaintRot = function (object) {
 
 	this.obj = object;
+	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
 
 	var radius  = 0.75,
 		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
@@ -35914,8 +35915,12 @@ THREE.PaintRot = function (object) {
 	//If the object dont have a parent (object == Scenrot)
 	if(this.obj.parent != null){
 		this.obj.parent.add( this.translateFromParent );
+
 	}else{
 		this.obj.add( this.translateFromParent );
+	}
+	if(this.obj.type != "Scene"){
+		this.obj.parent.add(this.circle);
 	}
 	
 	this.firstUpdate = true;
@@ -35923,7 +35928,7 @@ THREE.PaintRot = function (object) {
 
 THREE.PaintRot.prototype.update = ( function () {
 
-	return function update(rot, istranslated, parentRot) {
+	return function update(rot, trans, parentRot) {
 
 
 		/*Används endast när man har dynamiskt stora cirklar
@@ -35940,39 +35945,43 @@ THREE.PaintRot.prototype.update = ( function () {
 
 		 */
 
-		if(parentRot != undefined){ //Fult men fungerar och löser svårlöst problem
+		if(parentRot != undefined && trans != undefined){ //Fult men fungerar och löser svårlöst problem
 			//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
-			// this.obj.parent.remove(this.circle);
-			// if(istranslated && parentRot.hasRot.length() != 0){
-			// 	this.obj.parent.remove(this.circle);
-			// 	//Make circle
-			// 	var geometry = new THREE.CircleGeometry( 10, 64 );
-			// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
+			//this.obj.parent.remove(this.circle);
+			if(trans.hasTrans.length() != 0 && parentRot.hasRot.length() != 0){
+				//this.obj.parent.remove(this.circle);
+				//Make circle
+				var geometry = new THREE.CircleGeometry(trans.position.length(), 32 );
+				this.circle.geometry = geometry;
+				geometry.vertices.shift(); // Remove center vertex (line to center)
 
-			//Måste ha om den är translaterad o skit för att testa
-			// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
-			//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
-			// 		//Do nothing
-			// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
-			// 		this.circle.rotation.x = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
-			// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
-			// 		//Do nothing
-			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
-			// 		this.circle.rotation.y = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
-			// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
-			// 		this.circle.rotation.x = Math.PI / 2;
-			// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
-			// 		this.circle.rotation.y = Math.PI / 2;
-			// 	}
-			// 	this.obj.parent.add(this.circle);
-			// }
-			// }
+
+				if(trans.hasTrans.x && !trans.hasTrans.y && !trans.hasTrans.z && !parentRot.hasRot.x){
+
+					if(parentRot.hasRot.z && !parentRot.hasRot.y){
+						//Do nothing
+					}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
+						this.circle.rotation.x = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}else if(trans.hasTrans.y && !trans.hasTrans.x && !trans.hasTrans.z && !parentRot.hasRot.y){
+					if(parentRot.hasRot.z && !parentRot.hasRot.x){
+						//Do nothing
+					}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
+						this.circle.rotation.y = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}else if(trans.hasTrans.z && !trans.hasTrans.x && !trans.hasTrans.y && !parentRot.hasRot.z){
+					if(parentRot.hasRot.y && !parentRot.hasRot.x){
+						this.circle.rotation.x = Math.PI / 2;
+					}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
+						this.circle.rotation.y = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}
+			}else{
+				this.obj.parent.remove(this.circle);
+			}
 		}
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
@@ -36169,7 +36178,7 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 	if(showTrans){
 		this.object.trans.push(new THREE.TransHelper(this.object));
 		for (i = 0; i < this.parents.length; i++){
-			this.object.trans.push(new THREE.TransHelper(this.parents[i])); // scale helper to all parents
+			this.object.trans.push(new THREE.TransHelper(this.parents[i])); // transhelper to all parents
 
 		}
 	}
@@ -36192,10 +36201,11 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 		for(var i = 0; i < this.object.rot.length; i++){
 			this.object.rot[i].update();
-			this.paintRot[i].update(this.object.rot[i], 1, this.object.rot[i+1]);
+			this.paintRot[i].update(this.object.rot[i], this.object.trans[i], this.object.rot[i+1]);
 			//console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+			//console.log(this.object.scales[i]);
 		}
-		
+
 		for(var i = 0; i < this.object.scales.length; i++){
 			this.object.scales[i].update();
 			this.paintScales[i].update(this.object.scales[i]);
@@ -36204,7 +36214,7 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 		for(var i = 0; i < this.object.trans.length; i++){
 			this.object.trans[i].update();
-
+			//console.log(this.object.trans[i].hasTrans);
 		}
 	}
 
@@ -36331,7 +36341,7 @@ THREE.TransHelper = function (trans, parents) {
 	);
 	material =  new THREE.LineBasicMaterial({color: 0xffffff});
 	this.line = new THREE.LineSegments(geometry, material);
-	this.hasTrans = false;
+	this.hasTrans = new THREE.Vector3(0,0,0);
 };
 
 
@@ -36343,8 +36353,7 @@ THREE.TransHelper.prototype.update = ( function () {
 	return function update() {
 
 		if (this.position.length() != 0) {
-			console.log(this.obj.type);
-			this.hasTrans = true;
+			this.hasTrans = new THREE.Vector3(this.position.x != 0, this.position.y != 0, this.position.z != 0);
 
 			geometry = new THREE.Geometry();
 			geometry.vertices.push(

@@ -36021,6 +36021,7 @@ THREE.PaintScale = function (object) {
 		posStart = 2;
 
 	this.arrows= new Array();
+	this.arrows= new Array();
 
 	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( negStart, 0, 0 ), arrowLength, 0xff0000 )  ); // neg X
 	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ),  new THREE.Vector3( -negStart, 0, 0 ) , arrowLength, 0xff0000 )  ); // neg X2
@@ -36212,12 +36213,13 @@ THREE.TransformHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author Erik Åkesson
+ *
+ *
+ * @param {Euler} eulerR - The Euler matrix of object
+ * @constructor
+ * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
-
 THREE.RotHelper = function (eulerR) {
-
-	//this.cnt = 0 //only to not spam
 
 	//for rot
 	this.eulerRot = eulerR; //The rot of the object
@@ -36230,8 +36232,6 @@ THREE.RotHelper = function (eulerR) {
 	var date = new Date();
 	this.startTime = date.getTime();
 	this.latesttime = date.getTime();
-
-	//this.update();
 
 };
 
