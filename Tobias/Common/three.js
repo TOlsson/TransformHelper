@@ -35892,12 +35892,19 @@ function getParents(obj, arr) {
 THREE.TransformHelper = function ( myObj ){
 
 	this.object = myObj;
+	this.object.trans = new Array();
 	this.object.rot = new THREE.RotHelper(this.object.rotation);
 	this.object.scale = new THREE.ScaleHelper(this.object.scale);
 	
 	this.parents = getParents(this.object , new Array() ); // collect all parent in an array
-	
-	this.object.trans = new THREE.TransHelper(this.object, this.parents);
+
+	if(true){
+		this.object.trans.push(new THREE.TransHelper(this.object));
+		for (i = 0; i < this.parents.length; i++){
+			this.object.trans.push(new THREE.TransHelper(this.parents[i])); // scale helper to all parents
+
+		}
+	}
 	
 }
 
@@ -35908,8 +35915,11 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 		this.object.rot.update();
-		this.object.trans.update();
-		//console.log(this.object.rot.hasRot.x + ", " + this.object.rot.hasRot.y + ", " + this.object.rot.hasRot.z);
+		
+		for(var i = 0; i < this.object.trans.length; i++){
+			this.object.trans[i].update();
+
+		}
 	}
 
 }() );
@@ -36005,19 +36015,21 @@ THREE.ScaleHelper.prototype.update = ( function () {
 /**
  * @author Tobias Olsson, Emma Nilsson, Sara Olsson and Erik Åkesson 
  */
- 
-THREE.TransHelper = function (trans, parents) {
+
+THREE.TransHelper = function (trans) {
 	
 	this.obj = trans;
 	this.position = trans.position;
-	this.parents = parents;
-	this.line = new Array();
-	this.latestTrans = new Array();
-	this.latestLength = new Array();
+	geometry = new THREE.Geometry();
+	geometry.vertices.push(
+		new THREE.Vector3(0,0,0),
+		this.position
+	);
+	material =  new THREE.LineBasicMaterial({color: 0x0000ff});
+	this.line = new THREE.LineSegments(geometry, material);
 	this.hasTrans = false;
-	this.directionTrans = new Array();
 	
-	//this.update();
+
 };
 
 
@@ -36028,184 +36040,23 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 
-		//checks if the object has been translated
-		if (this.latestTrans.length == 0 || this.latestTrans.length != this.parents.length) {
+		if (this.position.length() != 0) {
+			console.log(this.obj.type);
 			this.hasTrans = true;
-		}
-		else if (this.latestTrans.length == this.parents.length){
 
-			//varaiables to compare
-			var count = 0;
-			var nya = new Array();
-			var temp = new THREE.Vector3();
-			
-			for (var i = 0; i < this.parents.length; i++){
-				var diffTrans = new THREE.Vector3;
-				if(i != 0)
-				{
-					diffTrans.subVectors(this.latestTrans[i], this.parents[i-1].position);
-					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
-					nya[i] = this.parents[i-1].position.distanceTo(temp);
-					this.directionTrans[i] = new THREE.Vector3(false, false, false);
-					console.log("wow");
-					console.log(this.latestTrans[i]);
-					console.log(this.parents[i-1].position);
-					console.log("nja00");
-					//console.log(diffTrans);
-					
-					//if the length of the vectors are equal, add to count
-					if (this.latestLength[i] == nya[i]){
-						count++;
-						this.directionTrans[i].x = false;
-						this.directionTrans[i].y = false;
-						this.directionTrans[i].z = false;
-						
-					}
-					
-					else {
-						this.directionTrans[i] = new THREE.Vector3(false, false, false);
-						
-						
-						if(diffTrans.x > 0 || diffTrans.x < 0) {
-							this.directionTrans[i].x = true;
-						}
-						
-						else{
-							this.directionTrans[i].x = false;
-						}
-						
-						if(diffTrans.y > 0 || diffTrans.y < 0) {
-							this.directionTrans[i].y = true;
-						}
-						
-						else{
-							this.directionTrans[i].y = false;
-						}
-						
-						if(diffTrans.z > 0 || diffTrans.z < 0) {
-							this.directionTrans[i].z = true;
-						}
-						
-						else{
-							this.directionTrans[i].z = false;
-						}
-					}
+			geometry = new THREE.Geometry();
+			geometry.vertices.push(
+						new THREE.Vector3(0,0,0),
+						this.position
+			);
 
-				}
-				else if(i == 0){
-					diffTrans.subVectors(this.latestTrans[i], this.obj.position);
-					temp.addVectors(this.obj.position, this.parents[i].position);
-					nya[i] = this.obj.position.distanceTo(temp);
-					this.directionTrans[i] = new THREE.Vector3(false, false, false);
-					
-					//console.log(diffTrans);
-					
-					if (this.latestLength[i] == nya[i]){
-						count++;
-						this.directionTrans[i].x = false;
-						this.directionTrans[i].y = false;
-						this.directionTrans[i].z = false;
-						
-					}
-					
-					else {
-						this.directionTrans[i] = new THREE.Vector3(false, false, false);
-						
-						
-						if(diffTrans.x > 0 || diffTrans.x < 0) {
-							this.directionTrans[i].x = true;
-						}
-						
-						else{
-							this.directionTrans[i].x = false;
-						}
-						
-						if(diffTrans.y > 0 || diffTrans.y < 0) {
-							this.directionTrans[i].y = true;
-						}
-						
-						else{
-							this.directionTrans[i].y = false;
-						}
-						
-						if(diffTrans.z > 0 || diffTrans.z < 0) {
-							this.directionTrans[i].z = true;
-						}
-						
-						else{
-							this.directionTrans[i].z = false;
-						}
-					}
-
-				}
-			//console.log(this.parents[i].position);
+			//create line and add to the scene
+			this.line.geometry = geometry;
+			if(this.obj.type != "Scene") {
+				this.obj.parent.add(this.line);
 			}
 
-			//if all distances are not equal
-			if (count != this.latestTrans.length){
-				this.hasTrans = true;
-			}
-			else {
-				this.hasTrans = false;
-			}
-			
-		
-		}
-		//console.log(this.obj.position);
-		console.log(this.directionTrans);
-		//console.log(this.latestTrans);
-		
-
-		//if translation has occurred
-		if(this.hasTrans == true){
-			
-			//erase previous lines
-			for(var i = 0; i < this.line.length; i++){
-			 	this.parents[i].remove(this.line[i]);
-			}
-
-			//variables to compare
-			var geometry = new Array();
-			var temp = new THREE.Vector3();
-			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
-			
-			//go through all objects to create lines between them
-			for(var i = 0; i < this.parents.length; i++){
-
-				geometry[i] = new THREE.Geometry();
-				
-
-				//zero does not need to be checked
-				if(i != 0){
-					this.latestTrans[i] = this.parents[i].position;
-					//create vertices for the line
-					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
-					geometry[i].vertices.push(
-						this.parents[i-1].position,
-						temp
-					);
-					//calculate the length of the line
-					this.latestLength[i] = this.parents[i-1].position.distanceTo(temp);
-				}
-				else if(i == 0){
-					this.latestTrans[i] = this.obj.position;
-					temp.addVectors(this.obj.position, this.parents[i].position);
-					geometry[i].vertices.push(
-						this.obj.position,
-						temp
-					);
-					this.latestLength[i] = this.obj.position.distanceTo(temp);
-				}
-
-				//create line and add to the scene
-				this.line[i] = new THREE.LineSegments(geometry[i], material);
-				this.parents[i].add(this.line[i]);
-			}
-			
-			//reset translation
-			this.hasTrans = false;
-		}
-		
+		}	
 		return this;
 	}
 

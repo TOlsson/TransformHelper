@@ -34,10 +34,17 @@
 	var windowHalfY = window.innerHeight / 2;
 
 	// Object3D ("Group") nodes and Mesh nodes
+	// Object3D ("Group") nodes and Mesh nodes
 	var sceneRoot = new THREE.Group();
-	var objectSpin = new THREE.Group();
-	var objectSpin1 = new THREE.Group();
-	var objectMesh, objectMesh1;
+	var sunNode = new THREE.Group();
+	var sunOrbiter = new THREE.Group();
+	var earthNode = new THREE.Group();
+	var earthOrbiter = new THREE.Group();
+	var moonNode = new THREE.Group();
+	var cameraNode = new THREE.Group();
+	var objectMesh;
+
+	//var objectMesh, objectMeshP1, objectMeshP2, objectMeshC1;
 	var helper;
 	var rotspeedx = 0;
 	var rotspeedy = 0;
@@ -63,8 +70,6 @@
 
 		camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
 		camera.position.z = 10;
-		
-		
 
 		scene = new THREE.Scene();
 
@@ -72,33 +77,32 @@
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
 		materialBox.wireframe = true;
-		objectMesh = new THREE.Mesh( geometryBox, materialBox );
-		objectMesh1 = new THREE.Mesh( geometryBox, materialBox );
+
+		sunMesh = new THREE.Mesh( geometryBox, materialBox );
+		earthMesh = new THREE.Mesh( geometryBox, materialBox );
+		moonMesh = new THREE.Mesh( geometryBox, materialBox );
 
 
-		objectSpin.position.x = -2;
-		objectSpin.position.y = -1;
-		objectSpin1.position.y = 3;
-		objectSpin1.position.x = 4;
-		
+
 		// Top-level node
 		scene.add( sceneRoot );
 
 		// Sun branch
-		sceneRoot.add( objectSpin );
-		objectSpin.add( objectMesh );
-		objectSpin.add( objectSpin1 );
-		objectSpin1.add( objectMesh1 );
-		helper = new THREE.TransformHelper(objectMesh1);
-		
-		objectSpin.name = "Spin";
-		objectSpin1.name = "Spin1";
-		objectMesh.name = "Mesh";
-		objectMesh1.name = "Mesh1";
-		sceneRoot.name = "sceneRoot";
+		sceneRoot.add( sunNode );
+		sunNode.add( sunMesh );
+		sunNode.add( sunOrbiter );
+		sunOrbiter.add( earthNode );
+		earthNode.add( earthMesh );
+		earthNode.add( earthOrbiter );
+		earthOrbiter.add( moonNode );
+		moonNode.add( moonMesh );
+
+
+		helper = new THREE.TransformHelper(earthNode);
+//		Ahelper= new THREE.AxisHelper(5);
+//		earthNode.add(Ahelper);
 
 		//sceneRoot.add(helper);
-
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0x000000 );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -107,7 +111,6 @@
 
 		window.addEventListener( 'resize', onWindowResize, false );
 	}
-
 
 	function render() {
 
@@ -132,30 +135,45 @@
 					rotspeedz = rotspeed;
 				else
 					rotspeedz = 0;
-
 			}
 
 		};
 
 		// Set up the camera
-		camera.position.x = 0;
+		camera.position.x = -20;
 		camera.position.y = 2;//-mouseY*10;
 		camera.lookAt( scene.position );
 
 		// Perform animations
-		objectMesh.rotation.y += rotspeedy;
-		objectMesh.rotation.x += rotspeedx;
-		objectMesh.rotation.z += rotspeedz;
-
+		earthNode.rotation.y += rotspeedy;
+		earthNode.rotation.x += rotspeedx;
+		earthNode.rotation.z += rotspeedz;
 		
-		objectSpin.rotation.y += 0.02;
+		
+		
+		earthNode.scale.x += 0.001;
+		earthNode.scale.y += 0.001;
+		earthNode.scale.z += 0.001;
+		
+		/*
+		sunNode.scale.x -= 0.001;
+		sunNode.scale.y += 0.001;
+		sunNode.scale.z += 0.001;
+		*/
 
 
-			objectSpin.position.x += 0.01;
-			//objectSpin.position.z -= 0.01;
-			//objectSpin.position.y -= 0.01;
-			//objectSpin1.position.y += 0.01;
-
+		sunNode.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
+		//sunOrbiter.rotation.y += 0.00001 //oneTurn / 365 * deltaTime; // Earth orbit //samma shit
+		sunMesh.scale.x = 2.0;
+		sunMesh.scale.y = 2.0;
+		sunMesh.scale.z = 2.0;
+		earthNode.position.x = 10;
+		//earthNode.rotation.y += 0.02 //oneTurn * deltaTime; // Moon rotation
+		earthOrbiter.rotation.y += 0.01 //oneTurn / 27.3 * deltaTime; // Moon orbit
+		moonNode.position.x = 3;
+		moonMesh.scale.x = 0.5;
+		moonMesh.scale.y = 0.5;
+		moonMesh.scale.z = 0.5;
 
 		helper.update();
 //				document.getElementById("rad").textContent = (values.x + "rad/s");
