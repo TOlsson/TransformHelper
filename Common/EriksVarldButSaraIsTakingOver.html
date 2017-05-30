@@ -117,9 +117,14 @@
 		window.onkeydown = function (e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			if (code === 38) { //up key
-				rotspeed += 0.01;
+				//rotspeed += 0.01;
+				helper.reset();
+				delete helper;
 			} else if (code === 40) { //down key
-				rotspeed -= 0.01;
+				//rotspeed -= 0.01;
+				helper.reset();
+				delete helper;
+				helper = new THREE.TransformHelper(moonMesh, -1, true, true, true);
 			} else if (code === 88) { //x key
 				if(!rotspeedx)
 					rotspeedx = rotspeed;

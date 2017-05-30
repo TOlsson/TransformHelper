@@ -36021,7 +36021,7 @@ THREE.PaintScale = function (object) {
 		posStart = 2;
 
 	this.arrows= new Array();
-	this.arrows= new Array();
+	//this.arrows= new Array();
 
 	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( -1, 0, 0 ), new THREE.Vector3( negStart, 0, 0 ), arrowLength, 0xff0000 )  ); // neg X
 	this.arrows.push(  new THREE.ArrowHelper(new THREE.Vector3( 1, 0, 0 ),  new THREE.Vector3( -negStart, 0, 0 ) , arrowLength, 0xff0000 )  ); // neg X2
@@ -36106,15 +36106,15 @@ function getParents(obj, arr, num) {
 	else return arr;
 };
 
-function setMeshesToWire(obj){
+function setMeshesToWire(obj, bol){
 
 	if(obj.type == "Mesh")
-		obj.material.wireframe = true;
+		obj.material.wireframe = bol;
 
 	var arr = obj.children;
 	for(var i = 0; i < arr.length; i++){
 		if(arr[i].position.length() == 0)
-			setMeshesToWire(arr[i]);
+			setMeshesToWire(arr[i], bol);
 	}
 }
 
@@ -36124,8 +36124,8 @@ function setMeshesToWire(obj){
 /**
  * A helper that´s visualise transformations such as Translation,  Rotation and Scaling
  *
- * @param {Object3D} obj - The object that the helper should follow  DEFAULT = Undefined
- * @param {Int} numParent - Number of parent that the helper also should show transformations for. 0 means nothing, -1 means all parents, and any positive number means that number of parents. DEFAULT = -1
+ * @param {Object3D} myObj - The object that the helper should follow  DEFAULT = Undefined
+ * @param {int} numParent - Number of parent that the helper also should show transformations for. 0 means nothing, -1 means all parents, and any positive number means that number of parents. DEFAULT = -1
  * @param {Boolean} showRot - If the helper should show rotation. false -> show, true -> show. DEFAULT = 1
  * @param {Boolean} showScale - If the helper should show scaling. false -> show, true -> show.  DEFAULT = 1
  * @param {Boolean} showTrans - If the helper should show translation. false -> show, true -> show.  DEFAULT = 1
@@ -36134,9 +36134,9 @@ function setMeshesToWire(obj){
  * @author Emma Nilsson Sara Olsson, Tobias Olsson, Erik Åkesson / http:
  */
 
-THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTrans){
+THREE.TransformHelper = function ( myObj, numParent, showRot, showScale, showTrans){
 
-	numparent = ( numparent !== undefined ) ? numparent : -1;
+	numParent = ( numParent !== undefined ) ? numParent : -1;
 	showRot = ( showRot !== undefined ) ? showRot : 1;
 	showScale = ( showScale !== undefined ) ? showScale : 1;
 	showTrans = ( showTrans !== undefined ) ? showTrans : 1;
@@ -36148,7 +36148,7 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 	this.object.scales = new Array();
 	this.paintScales = new Array();
 
-	this.parents = getParents(this.object , new Array(), numparent); // collect all parent in an array
+	this.parents = getParents(this.object , new Array(), numParent); // collect all parent in an array
 
 	if(showRot){
 		this.object.rot.push(new THREE.RotHelper(this.object.rotation));
@@ -36188,9 +36188,9 @@ THREE.TransformHelper.prototype.update = ( function () {
 	return function update() {
 
 		if(this.checkifwireframe){ //Needs to be in the update to have the posistion set
-			setMeshesToWire(this.object); //Check this.object and non translated children
+			setMeshesToWire(this.object, true); //Check this.object and non translated children
 			for (var i = 0; i < this.parents.length; i++){
-				setMeshesToWire(this.parents[i]); //Check all parents and non translated children
+				setMeshesToWire(this.parents[i], true); //Check all parents and non translated children
 			}
 			this.checkifwireframe = false;
 		}
@@ -36208,6 +36208,42 @@ THREE.TransformHelper.prototype.update = ( function () {
 		}
 
 		//this.object.trans.update();
+	}
+
+}() );
+
+
+THREE.TransformHelper.prototype.reset = ( function () {
+
+
+
+	return function reset() {
+		//this.object.rot = new Array();
+		//this.paintRot[0].translateFromParent.traverse( function ( object ) { object.visible = false; } );
+		//this.paintRot[0].translateFromParent.traverse( function ( object ) { delete object; } );
+		for (var i = 0; i < this.object.rot.length-1; i++) {
+			//Ta bort scenrooten och sen inte ha -1
+			this.paintRot[i].obj.parent.remove( this.paintRot[i].translateFromParent );
+			this.paintRot[i].translateFromParent = undefined;
+		}
+		delete this.paintRot;
+		delete this.object.rot;
+		this.object.rot = new Array();
+
+		for(var i = 0; i < this.object.scales.length; i++){
+			//this.paintScales[i].
+			for (j = 0; j < this.paintScales[i].arrows.length; j++){
+				this.paintScales[i].obj.remove(this.paintScales[i].arrows[j]);
+			}
+		}
+		delete this.paintScales;
+		delete this.object.scales;
+		this.object.scales = new Array();
+
+		setMeshesToWire(this.object, false); //Check this.object and non translated children
+		for (var i = 0; i < this.parents.length; i++){
+			setMeshesToWire(this.parents[i], false); //Check all parents and non translated children
+		}
 	}
 
 }() );

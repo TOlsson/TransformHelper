@@ -76,7 +76,7 @@
 		// Mesh
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
-		materialBox.wireframe = true;
+		//materialBox.wireframe = true;
 
 		sunMesh = new THREE.Mesh( geometryBox, materialBox );
 		earthMesh = new THREE.Mesh( geometryBox, materialBox );
@@ -98,7 +98,7 @@
 		moonNode.add( moonMesh );
 
 
-		helper = new THREE.TransformHelper(earthNode);
+		helper = new THREE.TransformHelper(moonMesh);
 //		Ahelper= new THREE.AxisHelper(5);
 //		earthNode.add(Ahelper);
 

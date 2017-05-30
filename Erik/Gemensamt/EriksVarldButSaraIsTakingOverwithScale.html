@@ -22,7 +22,7 @@
 
 <!-- <script src="three.min.js"></script> -->
 <script src="three.js"></script>
-<script src="THREE.MeshLine.js"></script>
+<!--<script src="THREE.MeshLine.js"></script> -->
 <script>
 	// Lots of global variables. (This is JavaScript. No use complaining.)
 	var values;
@@ -119,9 +119,12 @@
 		window.onkeydown = function (e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			if (code === 38) { //up key
-				rotspeed += 0.01;
+				//rotspeed += 0.01;
+				helper.reset();
+
 			} else if (code === 40) { //down key
-				rotspeed -= 0.01;
+				//rotspeed -= 0.01;
+				helper = new THREE.TransformHelper(moonMesh, -1, true, true, true);
 			} else if (code === 88) { //x key
 				if(!rotspeedx)
 					rotspeedx = rotspeed;
