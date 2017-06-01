@@ -35983,6 +35983,11 @@ THREE.PaintRot.prototype.update = ( function () {
 			}else{
 				this.obj.parent.remove(this.circle);
 			}
+		}else{
+			//Lite quickfix nödlsning
+			if(this.obj.type != "Scene"){
+				this.obj.parent.remove(this.circle);
+			}
 		}
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
