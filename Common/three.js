@@ -35867,7 +35867,7 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 THREE.PaintRot = function (object) {
 
 	this.obj = object;
-	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0xff00ff } )); // circlecolor
+	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0x93fff2 } )); // circlecolor
 
 	var radius  = 0.75,
 		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
