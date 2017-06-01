@@ -19,7 +19,6 @@
 		<span id="rotspeed">rotspeed 0 rad</span>
 	</div>
 </div>
-
 <!-- <script src="three.min.js"></script> -->
 <script src="three.js"></script>
 <script>
@@ -121,7 +120,7 @@
 		objects.push(earthMesh);
 		objects.push(moonMesh);
 
-		helper = new THREE.TransformHelper(moonMesh);
+		helper = new THREE.TransformHelper(moonMesh, -1, true, false, false);
 //		Ahelper= new THREE.AxisHelper(5);
 //		earthNode.add(Ahelper);
 

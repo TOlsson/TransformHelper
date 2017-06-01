@@ -35944,7 +35944,7 @@ THREE.PaintRot.prototype.update = ( function () {
 		 }
 
 		 */
-
+		console.log(trans);
 		if(parentRot != undefined && trans != undefined){ //Fult men fungerar och löser svårlöst problem
 			//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
 			//this.obj.parent.remove(this.circle);
@@ -35980,6 +35980,10 @@ THREE.PaintRot.prototype.update = ( function () {
 					this.obj.parent.add(this.circle);
 				}
 			}else{
+				this.obj.parent.remove(this.circle);
+			}
+		}else{
+			if(this.obj.type != "Scene"){
 				this.obj.parent.remove(this.circle);
 			}
 		}
