@@ -19,8 +19,9 @@
 		<span id="rotspeed">rotspeed 0 rad</span>
 	</div>
 </div>
+
 <!-- <script src="three.min.js"></script> -->
-<script src="three.js"></script>
+<script src="threeDisco.js"></script>
 <script>
 	// Lots of global variables. (This is JavaScript. No use complaining.)
 	var values;
@@ -50,9 +51,6 @@
 	var rotspeedz = 0;
 	var rotspeed = 0.03;
 
-	var objects = [];
-	var mouse;
-	var raycaster;
 
 	function onWindowResize() {
 		windowHalfX = window.innerWidth / 2;
@@ -62,23 +60,6 @@
 		camera.updateProjectionMatrix();
 
 		renderer.setSize( window.innerWidth, window.innerHeight );
-	}
-
-	function onDocumentMouseDown( event ) {
-		event.preventDefault();
-
-		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-
-		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( objects );
-
-		if ( intersects.length > 0 ) {
-			helper.reset();
-			delete helper;
-			helper = new THREE.TransformHelper(intersects[ 0 ].object, -1, true, true, true);
-			//intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
-		}
 	}
 
 
@@ -95,11 +76,12 @@
 		// Mesh
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
-		materialBox.wireframe = false;
+		materialBox.wireframe = true;
+		materialBox.color.setHex(0x000000);
 
-		sunMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
-		earthMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
-		moonMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+		sunMesh = new THREE.Mesh( geometryBox, materialBox );
+		earthMesh = new THREE.Mesh( geometryBox, materialBox );
+		moonMesh = new THREE.Mesh( geometryBox, materialBox );
 
 
 
@@ -116,25 +98,19 @@
 		earthOrbiter.add( moonNode );
 		moonNode.add( moonMesh );
 
-		objects.push(sunMesh);
-		objects.push(earthMesh);
-		objects.push(moonMesh);
 
-		helper = new THREE.TransformHelper(moonMesh);
+		helper = new THREE.TransformHelper(earthNode);
 //		Ahelper= new THREE.AxisHelper(5);
 //		earthNode.add(Ahelper);
 
 		//sceneRoot.add(helper);
 		renderer = new THREE.WebGLRenderer();
-		renderer.setClearColor( 0x000000 );
+		renderer.setClearColor( 0xFFFFFF );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		container.appendChild( renderer.domElement );
 
 		window.addEventListener( 'resize', onWindowResize, false );
-		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		mouse = new THREE.Vector2();
-		raycaster = new THREE.Raycaster();
 	}
 
 	function render() {
@@ -143,13 +119,8 @@
 			var code = e.keyCode ? e.keyCode : e.which;
 			if (code === 38) { //up key
 				rotspeed += 0.01;
-				//helper.reset();
-				//delete helper;
 			} else if (code === 40) { //down key
 				rotspeed -= 0.01;
-				//helper.reset();
-				//delete helper;
-				//helper = new THREE.TransformHelper(moonMesh, -1, true, true, true);
 			} else if (code === 88) { //x key
 				if(!rotspeedx)
 					rotspeedx = rotspeed;
@@ -178,20 +149,16 @@
 		earthNode.rotation.y += rotspeedy;
 		earthNode.rotation.x += rotspeedx;
 		earthNode.rotation.z += rotspeedz;
-		
-		/*
-		sunNode.scale.x -= 0.001;
-		sunNode.scale.y += 0.001;
-		sunNode.scale.z += 0.001;
-		*/
 
+//		objectMesh.position.x = 2;
+//		objectSpin.rotation.y += 0.02
 
-		sunOrbiter.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
+		sunNode.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
 		//sunOrbiter.rotation.y += 0.00001 //oneTurn / 365 * deltaTime; // Earth orbit //samma shit
 		sunMesh.scale.x = 2.0;
 		sunMesh.scale.y = 2.0;
 		sunMesh.scale.z = 2.0;
-		earthNode.position.z = 10;
+		earthNode.position.x = 10;
 		//earthNode.rotation.y += 0.02 //oneTurn * deltaTime; // Moon rotation
 		earthOrbiter.rotation.y += 0.01 //oneTurn / 27.3 * deltaTime; // Moon orbit
 		moonNode.position.x = 3;

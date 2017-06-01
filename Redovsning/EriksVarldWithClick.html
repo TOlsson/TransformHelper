@@ -20,7 +20,7 @@
 	</div>
 </div>
 <!-- <script src="three.min.js"></script> -->
-<script src="three.js"></script>
+<script src="threeWhite.js"></script>
 <script>
 	// Lots of global variables. (This is JavaScript. No use complaining.)
 	var values;
@@ -67,6 +67,9 @@
 	function onDocumentMouseDown( event ) {
 		event.preventDefault();
 
+//		for(var i = 0; i < objects.length; i++){
+//			objects[i].material.color.setHex( Math.random() * 0xffffff );
+//		}
 		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
@@ -96,6 +99,7 @@
 		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
 		var materialBox = new THREE.MeshBasicMaterial();
 		materialBox.wireframe = false;
+		materialBox.color.setHex(0x000000);
 
 		sunMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
 		earthMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
@@ -126,7 +130,7 @@
 
 		//sceneRoot.add(helper);
 		renderer = new THREE.WebGLRenderer();
-		renderer.setClearColor( 0x000000 );
+		renderer.setClearColor( 0xFFFFFF );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		container.appendChild( renderer.domElement );
@@ -178,12 +182,12 @@
 		earthNode.rotation.y += rotspeedy;
 		earthNode.rotation.x += rotspeedx;
 		earthNode.rotation.z += rotspeedz;
-		
+
 		/*
-		sunNode.scale.x -= 0.001;
-		sunNode.scale.y += 0.001;
-		sunNode.scale.z += 0.001;
-		*/
+		 sunNode.scale.x -= 0.001;
+		 sunNode.scale.y += 0.001;
+		 sunNode.scale.z += 0.001;
+		 */
 
 
 		sunOrbiter.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
