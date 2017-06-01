@@ -35867,7 +35867,7 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 THREE.PaintRot = function (object) {
 
 	this.obj = object;
-	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
+	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0xff00ff } )); // circlecolor
 
 	var radius  = 0.75,
 		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
@@ -35944,6 +35944,7 @@ THREE.PaintRot.prototype.update = ( function () {
 		 }
 
 		 */
+
 
 		if(parentRot != undefined && trans != undefined){ //Fult men fungerar och löser svårlöst problem
 			//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
@@ -36380,7 +36381,7 @@ THREE.TransHelper = function (trans, parents) {
 		new THREE.Vector3(0,0,0),
 		this.position
 	);
-	material =  new THREE.LineBasicMaterial({color: 0xffffff});
+	material =  new THREE.LineBasicMaterial({color: 0xff00ff});
 	this.line = new THREE.LineSegments(geometry, material);
 	this.hasTrans = new THREE.Vector3(0,0,0);
 };

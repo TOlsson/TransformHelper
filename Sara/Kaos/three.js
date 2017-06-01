@@ -35867,6 +35867,7 @@ THREE.WireframeHelper.prototype.constructor = THREE.WireframeHelper;
 THREE.PaintRot = function (object) {
 
 	this.obj = object;
+	this.circle = new THREE.Line( new THREE.CircleGeometry(5, 32 ),  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
 
 	var radius  = 0.75,
 		//radius  = 1, //Should be 1 so that we can scale the circels in update. The scale is calculated by the boundingSphere of the object.
@@ -35914,8 +35915,12 @@ THREE.PaintRot = function (object) {
 	//If the object dont have a parent (object == Scenrot)
 	if(this.obj.parent != null){
 		this.obj.parent.add( this.translateFromParent );
+
 	}else{
 		this.obj.add( this.translateFromParent );
+	}
+	if(this.obj.type != "Scene"){
+		this.obj.parent.add(this.circle);
 	}
 	
 	this.firstUpdate = true;
@@ -35923,54 +35928,61 @@ THREE.PaintRot = function (object) {
 
 THREE.PaintRot.prototype.update = ( function () {
 
-	return function update(rot, istranslated/*, parentRot*/) {
+	return function update(rot, trans, parentRot) {
+
 
 		/*Används endast när man har dynamiskt stora cirklar
-		if(this.firstUpdate )
-		{
-			var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
-			this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
-			this.redSphere.position.y = bbox.getBoundingSphere().radius;
-			this.blueSphere.position.x = bbox.getBoundingSphere().radius;
-			this.greenSphere.position.z = bbox.getBoundingSphere().radius;
+		 if(this.firstUpdate )
+		 {
+		 var bbox = new THREE.Box3().setFromObject(this.obj); //Makes a box around this.obj and all it´s children. Then we can calculate the boundingsphere
+		 this.circleGroup.scale.set(bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius, bbox.getBoundingSphere().radius); //Scale the size of the circles to the size of bbox boundingsphere
+		 this.redSphere.position.y = bbox.getBoundingSphere().radius;
+		 this.blueSphere.position.x = bbox.getBoundingSphere().radius;
+		 this.greenSphere.position.z = bbox.getBoundingSphere().radius;
 
-			this.firstUpdate  = false;
+		 this.firstUpdate  = false;
+		 }
+
+		 */
+
+		if(parentRot != undefined && trans != undefined){ //Fult men fungerar och löser svårlöst problem
+			//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
+			//this.obj.parent.remove(this.circle);
+			if(trans.hasTrans.length() != 0 && parentRot.hasRot.length() != 0){
+				//this.obj.parent.remove(this.circle);
+				//Make circle
+				var geometry = new THREE.CircleGeometry(trans.position.length(), 32 );
+				this.circle.geometry = geometry;
+				geometry.vertices.shift(); // Remove center vertex (line to center)
+
+
+				if(trans.hasTrans.x && !trans.hasTrans.y && !trans.hasTrans.z && !parentRot.hasRot.x){
+
+					if(parentRot.hasRot.z && !parentRot.hasRot.y){
+						//Do nothing
+					}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
+						this.circle.rotation.x = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}else if(trans.hasTrans.y && !trans.hasTrans.x && !trans.hasTrans.z && !parentRot.hasRot.y){
+					if(parentRot.hasRot.z && !parentRot.hasRot.x){
+						//Do nothing
+					}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
+						this.circle.rotation.y = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}else if(trans.hasTrans.z && !trans.hasTrans.x && !trans.hasTrans.y && !parentRot.hasRot.z){
+					if(parentRot.hasRot.y && !parentRot.hasRot.x){
+						this.circle.rotation.x = Math.PI / 2;
+					}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
+						this.circle.rotation.y = Math.PI / 2;
+					}
+					this.obj.parent.add(this.circle);
+				}
+			}else{
+				this.obj.parent.remove(this.circle);
+			}
 		}
-
-	*/
-
-		//Make a ring if parent=rot and object=translate (Borde egentligen göras i init men går ej då inte allt är initierat då. :( )
-		// this.obj.parent.remove(this.circle);
-		// if(istranslated && parentRot.hasRot.length() != 0){
-		// 	this.obj.parent.remove(this.circle);
-		// 	//Make circle
-		// 	var geometry = new THREE.CircleGeometry( 10, 64 );
-		// 	this.circle = new THREE.Line( geometry,  new THREE.MeshBasicMaterial( { color: 0xffffff } ));
-
-		//Måste ha om den är translaterad o skit för att testa
-		// if(istranslatedX && !istranslatedY && !istranslatedZ && !parentRot.hasRot.x){
-		//  	if(parentRot.hasRot.z && !parentRot.hasRot.y){
-		// 		//Do nothing
-		// 	}else if(parentRot.hasRot.y && !parentRot.hasRot.x){
-		// 		this.circle.rotation.x = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }else if(istranslatedY && !istranslatedX && !istranslatedZ && !parentRot.hasRot.y){
-		// 	if(parentRot.hasRot.z && !parentRot.hasRot.x){
-		// 		//Do nothing
-		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.z){
-		// 		this.circle.rotation.y = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }else if(istranslatedZ && !istranslatedX && !istranslatedY && !parentRot.hasRot.z){
-		// 	if(parentRot.hasRot.y && !parentRot.hasRot.x){
-		// 		this.circle.rotation.x = Math.PI / 2;
-		// 	}else if(parentRot.hasRot.x && !parentRot.hasRot.y){
-		// 		this.circle.rotation.y = Math.PI / 2;
-		// 	}
-		// 	this.obj.parent.add(this.circle);
-		// }
-		// }
 		
 		this.translateFromParent.position.setFromMatrixPosition(this.obj.matrix); //Translate the everything to this.obj position
 
@@ -36102,6 +36114,18 @@ function getParents(obj, arr, num) {
 	else return arr;
 };
 
+function setMeshesToWire(obj){
+
+	if(obj.type == "Mesh")
+		obj.material.wireframe = true;
+
+	var arr = obj.children;
+	for(var i = 0; i < arr.length; i++){
+		if(arr[i].position.length() == 0 && arr[i].name != 'space')
+			setMeshesToWire(arr[i]);
+	}
+}
+
 
 // File:xxx/y/zz/TransFormHelper.js
 
@@ -36125,8 +36149,9 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 	showScale = ( showScale !== undefined ) ? showScale : 1;
 	showTrans = ( showTrans !== undefined ) ? showTrans : 1;
 	this.object = myObj;
+	this.checkifwireframe = true;
 
-
+	this.object.trans = new Array();
 	this.object.rot = new Array();
 	this.paintRot = new Array();
 	this.object.scales = new Array();
@@ -36151,15 +36176,13 @@ THREE.TransformHelper = function ( myObj, numparent, showRot, showScale, showTra
 		}
 	}
 	if(showTrans){
+		this.object.trans.push(new THREE.TransHelper(this.object));
+		for (i = 0; i < this.parents.length; i++){
+			this.object.trans.push(new THREE.TransHelper(this.parents[i])); // transhelper to all parents
 
+		}
 	}
 
-
-
-	// for (i = 0; i < this.parents.length; i++){
-	// 	this.object.rot.push(new THREE.RotHelper(this.parents[i].rotation));
-	// 	this.paint.push(new THREE.PaintRot(this.parents[i])); //ser fult ut när alla körs
-	// }
 }
 THREE.TransformHelper.prototype = Object.create( THREE.Object3D.prototype );
 THREE.TransformHelper.prototype.constructor = THREE.TransformHelper;
@@ -36168,20 +36191,31 @@ THREE.TransformHelper.prototype.update = ( function () {
 
 	return function update() {
 
+		if(this.checkifwireframe){ //Needs to be in the update to have the posistion set
+			setMeshesToWire(this.object); //Check this.object and non translated children
+			for (var i = 0; i < this.parents.length; i++){
+				setMeshesToWire(this.parents[i]); //Check all parents and non translated children
+			}
+			this.checkifwireframe = false;
+		}
+
 		for(var i = 0; i < this.object.rot.length; i++){
 			this.object.rot[i].update();
-			this.paintRot[i].update(this.object.rot[i], 1/*, this.object.rot[i+1]*/);
+			this.paintRot[i].update(this.object.rot[i], this.object.trans[i], this.object.rot[i+1]);
 			//console.log("Object " + i + " | " + this.object.rot[i].hasRot.x + ", " + this.object.rot[i].hasRot.y + ", " + this.object.rot[i].hasRot.z);
+			//console.log(this.object.scales[i]);
 		}
-		
+
 		for(var i = 0; i < this.object.scales.length; i++){
-			
 			this.object.scales[i].update();
-			this.paintScales[i].update(this.object.scales[i]); 
-			
+			this.paintScales[i].update(this.object.scales[i]);
 			//console.log("Object scales " + i + " | " + this.object.scales[i].hasScale.x + ", " + this.object.scales[i].hasScale.y + ", " + this.object.scales[i].hasScale.z);
-			
-		} 
+		}
+
+		for(var i = 0; i < this.object.trans.length; i++){
+			this.object.trans[i].update();
+			//console.log(this.object.trans[i].hasTrans);
+		}
 	}
 
 }() );
@@ -36300,13 +36334,14 @@ THREE.TransHelper = function (trans, parents) {
 	
 	this.obj = trans;
 	this.position = trans.position;
-	this.parents = parents;
-	this.line = new Array();
-	this.latestTrans = new Array();
-	this.latestLength = new Array();
-	this.hasTrans = false;
-	
-	//this.update();
+	geometry = new THREE.Geometry();
+	geometry.vertices.push(
+		new THREE.Vector3(0,0,0),
+		this.position
+	);
+	material =  new THREE.LineBasicMaterial({color: 0xff00ff});
+	this.line = new THREE.LineSegments(geometry, material);
+	this.hasTrans = new THREE.Vector3(0,0,0);
 };
 
 
@@ -36317,81 +36352,22 @@ THREE.TransHelper.prototype.update = ( function () {
 
 	return function update() {
 
-		//checks if the object has been translated
-		if (this.latestTrans.length == 0 || this.latestTrans.length != this.parents.length) {
-			this.hasTrans = true;
-		}
-		else if (this.latestTrans.length == this.parents.length){
+		if (this.position.length() != 0) {
+			this.hasTrans = new THREE.Vector3(this.position.x != 0, this.position.y != 0, this.position.z != 0);
 
-			//varaiables to compare
-			var count = 0;
-			var nya = new Array();
-			var temp = new THREE.Vector3();
-			
-			for (var i = 0; i < this.parents.length; i++){
-				if(i != 0)
-				{
-					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
-					nya[i] = this.parents[i-1].position.distanceTo(temp);
+			geometry = new THREE.Geometry();
+			geometry.vertices.push(
+						new THREE.Vector3(0,0,0),
+						this.position
+			);
 
-					//if the length of the vectors are equal, add to count
-					if (this.latestLength[i] == nya[i]){
-						count++;
-					}
-				}
-
+			//create line and add to the scene
+			this.line.geometry = geometry;
+			if(this.obj.type != "Scene") {
+				this.obj.parent.add(this.line);
 			}
 
-			//if all distances are not equal
-			if (count != this.latestTrans.length-1){
-				this.hasTrans = true;
-			}
-			else {
-				this.hasTrans = false;
-			}
-		}
-
-		//if translation has occurred
-		if(this.hasTrans == true){
-			
-			//erase previous lines
-			for(var i = 0; i < this.line.length; i++){
-			 	this.parents[i].remove(this.line[i]);
-			}
-
-			//variables to compare
-			var geometry = new Array();
-			var temp = new THREE.Vector3();
-			this.latestLength[0] = 0;
-			var material =  new THREE.LineBasicMaterial({color: 0x0000ff});
-			
-			//go through all objects to create lines between them
-			for(var i = 0; i < this.parents.length; i++){
-
-				geometry[i] = new THREE.Geometry();
-				this.latestTrans[i] = this.parents[i].position;
-
-				//zero does not need to be checked
-				if(i != 0){
-					//create vertices for the line
-					temp.addVectors(this.parents[i-1].position, this.parents[i].position);
-					geometry[i].vertices.push(
-						this.parents[i-1].position,
-						temp
-					);
-					//calculate the length of the line
-					this.latestLength[i] = this.parents[i-1].position.distanceTo(temp);
-				}
-
-				//create line and add to the scene
-				this.line[i] = new THREE.LineSegments(geometry[i], material);
-				this.parents[i].add(this.line[i]);
-			}
-			
-			//reset translation
-			this.hasTrans = false;
-		}
-		
+		}	
 		return this;
 	}
 

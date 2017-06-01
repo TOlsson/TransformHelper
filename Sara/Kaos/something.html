@@ -37,11 +37,9 @@
 	var objectMesh;
 	
 	var marchNode = new THREE.Group();
-	var ringNode = new THREE.Group();
 
 	//var objectMesh, objectMeshP1, objectMeshP2, objectMeshC1;
 	var helper;
-	var theShip;
 	var rotspeedx = 0;
 	var rotspeedy = 0;
 	var rotspeedz = 0;
@@ -73,82 +71,54 @@
 				
 		// *************** GEOMETRIES **************************//
 
-		var sunGeo = new THREE.SphereGeometry(1,20,20);
+		var sunGeo =  new THREE.TorusGeometry( 1.5, 0.3, 16, 100 ); // THREE.SphereGeometry(1,20,20);
+		var sunGeo2 =  new THREE.TorusGeometry( 1.8, 0.4, 16, 100 ); // THREE.SphereGeometry(1,20,20);
 		var marchGeo = new THREE.SphereGeometry(1.5,20,20);
 		var earthGeo = new THREE.SphereGeometry(0.5,20,20);
-		var ringGeo = new THREE.RingGeometry( 2, 2.5, 32 );
-		var moonGeo = new THREE.SphereGeometry(0.2,20,20);
+		
+		var plane = new THREE.PlaneGeometry( 5, 20, 32 );
 	
 	    // *************** TEXTURES **************************//
 		
-		var textureSun = new THREE.TextureLoader().load( 'images/sun.jpg' );
+		var textureSun = new THREE.TextureLoader().load( 'images/w.jpg' );
 		var textureMarch = new THREE.TextureLoader().load( 'images/planet-512.jpg' );
-		var textureEarth = new THREE.TextureLoader().load( 'images/earth.jpg' );
+		var textureEarth = new THREE.TextureLoader().load( 'images/1.jpg' );
 		var map2 = new THREE.TextureLoader().load( 'images/metal.jpg' ); // ship material
-		var textureRing = new THREE.TextureLoader().load( 'images/ring.jpg' );
-		var textureMoon = new THREE.TextureLoader().load( 'images/metal.jpg' );
+		var textureDeep = new THREE.TextureLoader().load( 'images/ocean.jpg' ); // ship material
 		
 		// *************** MATERIALS **************************//
 		
 		var materialSun = new THREE.MeshLambertMaterial( { map: textureSun, side: THREE.DoubleSide } );
 		var materialEarth = new THREE.MeshLambertMaterial( { map: textureEarth, side: THREE.DoubleSide } );
 		var materialMarch = new THREE.MeshLambertMaterial( { map: textureMarch, side: THREE.DoubleSide } );
-		var materialMoon = new THREE.MeshLambertMaterial( { map: textureMoon, side: THREE.DoubleSide } );
 		var materialC = new THREE.MeshLambertMaterial( { map: map2, side: THREE.DoubleSide } );
-		var materialRing = new THREE.MeshLambertMaterial( { map: textureRing, side: THREE.DoubleSide, transparent: true, opacity: 0.5 } );
-		
-		// transparent: true, opacity: 0.5
+		var materialDeep = new THREE.MeshLambertMaterial( { map: textureDeep } );
 		
 		// *************** MESHES **************************//
 		
 		sun = new THREE.Mesh( sunGeo, materialSun );
+		sun2 = new THREE.Mesh( sunGeo2, materialSun );
 		earth = new THREE.Mesh( earthGeo, materialEarth );
 		march = new THREE.Mesh( marchGeo, materialMarch );
-		moon = new THREE.Mesh( moonGeo, materialMoon );
-		ring = new THREE.Mesh( ringGeo, materialRing );
-		ship = new THREE.Mesh( new THREE.Geometry(), materialC ); // new THREE.BoxGeometry(2, 0.3, 3, 1, 1, 1)
+		ship = new THREE.Mesh( new THREE.BoxGeometry(2, 0.3, 3, 1, 1, 1), materialC );
+		deep =  new THREE.Mesh( plane, materialDeep );
 		
 		// *************** GROUPS **************************//
 		
 		
 		/* *****************************************************/
 
-		
-		// instantiate a loader
-		var loader = new THREE.JSONLoader();
-
-		// load a resource
-		loader.load(
-
-			// resource URL
-			'ship.js',
-
-			// Function when resource is loaded
-			function ( geometry, materials ) {
-
-				var material =  new THREE.MeshLambertMaterial( { map:  new THREE.TextureLoader().load( 'images/SS.jpg' ), side: THREE.DoubleSide } ); // materials[ 0 ];
-				theShip = new THREE.Mesh( geometry, material );
-
-				theShip.scale.x = 0.2;
-				theShip.scale.y = 0.2;
-				theShip.scale.z = 0.2;
-				
-				scene.add( theShip );
-				console.log(theShip);
-
-			}
-		);
-
-		
-		
 
 		  // ***************  SPACE sphere **************************//
-		  var mapSpace = new THREE.TextureLoader().load( 'images/space.jpg' );
-		  var spacesphereGeo = new THREE.SphereGeometry(50,20,20);
+		  var mapSpace = new THREE.TextureLoader().load( 'images/ocean.jpg' );
+		  var spacesphereGeo = new THREE.SphereGeometry(50,30,30);
 		  var spacesphereMat = new THREE.MeshPhongMaterial();
 		  spacesphereMat.map = mapSpace;
 		 
 		  spacesphere = new THREE.Mesh(spacesphereGeo,spacesphereMat);
+		  
+		  spacesphere.position.y = 7;
+		  spacesphere.position.z = 20;
 		  
 		  spacesphere.material.side = THREE.DoubleSide; //spacesphere needs to be double sided as the camera is within the spacesphere
 		  
@@ -167,42 +137,35 @@
 
 		/* *****************************************************/
 		
-		fire = new THREE.Mesh( new THREE.CircleGeometry( 0.34, 10 ),  materialMarch )  ; // new THREE.MeshBasicMaterial( { color: 0xffff00 } ) ) ;
-		fire2 = new THREE.Mesh( new THREE.CircleGeometry( 0.34, 10 ),  materialMarch )  ; // new THREE.MeshBasicMaterial( { color: 0xffff00 } ) ) ;
-		fire.position.y = 0.95;
-		fire.position.x = 1.3;
-		fire2.position.y = 0.95;
-		fire2.position.x = -1.3;
-		
 		// ***************  SCENE GRAPH **************************// 
 		
+		//scene.add(spacesphere);
 		
 		// Top-level node
 		scene.add( sceneRoot );
 		
-		sceneRoot.add( sunNode ); // translation from scene root
-		sceneRoot.add( marchNode );
-		sceneRoot.add( ship );
-		ship.add( camera ); // follow ship!
-		ship.add(spacesphere); // follow ship!
+		// scene.add(deep);
 		
-		ship.add( fire ) ;
-		ship.add( fire2 ) ;
+		deep.rotation.x = 0;
+		deep.rotation.y = Math.PI/4;
+		deep.rotation.z = Math.PI/4;
+		
+		
+		sceneRoot.add( sunNode ); // translatiobn from scene root
+		sceneRoot.add( marchNode );
+		//sceneRoot.add( ship );
+		sceneRoot.add( camera );
+		sceneRoot.add(spacesphere);
 		
 		sunNode.add( sun );
-		sunNode.add( earthNode );
-		// earthNode.add( moonNode );
+		//sunNode.add( earthNode );
+		sceneRoot.add( earthNode );
 		earthNode.add( earth ); // earth
 		
-		marchNode.add( march );
-		marchNode.add( ringNode );
-
-		// ringNode.add( ring );
-		//moonNode.add( moon );
+		marchNode.add( sun2 );
 		
 
-		helper = new THREE.TransformHelper(earth);
-		helper2 = new THREE.TransformHelper(march);
+		helper = new THREE.TransformHelper(sun2);
 		
 		
 		
@@ -210,19 +173,44 @@
 		
 		sunNode.position.y = 4;
 		sunNode.position.x = -5;
+		sunNode.rotation.y += Math.PI/2;
 		
-		earthNode.position.x = 3;
+		earthNode.position.x = 2;
+		earthNode.position.y = 4;
 		
-		marchNode.position.y = 2;
-		marchNode.position.x = 7;
+		marchNode.position.y = 4;
+		marchNode.position.x = 4;
+		marchNode.rotation.y += Math.PI/2;
 		
-		ring.rotation.x = Math.PI/3;
+		/* ************************* TWEEN setup **************************/
 		
-		moonNode.position.x = 1;
 		
-		/* ***************************************************/
+		position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+		target = { x : ship.position.x, y: ship.position.y, z: ship.position.x-5 };
+		tween = new TWEEN.Tween(position).to(target, 2000);
 		
-	
+		rotationS = { x : ship.rotation.x, y: ship.rotation.y, z: ship.rotation.z };
+		rotationE = { x : ship.rotation.x, y: ship.rotation.y + Math.PI/4, z: ship.rotation.z };
+		
+		tweenRot = new TWEEN.Tween(rotationS).to(rotationE, 2000);
+		
+		tween.onUpdate(function(){
+			ship.position.x = position.x;
+			ship.position.y = position.y;
+			ship.position.z = position.z;
+		});
+		
+		tweenRot.onUpdate(function(){
+			
+			ship.rotation.x = rotationS.x;
+			ship.rotation.y = rotationS.y;
+			ship.rotation.z = rotationS.z;
+			
+		});
+		
+		// 	 tween.start();
+		// tweenRot.start();
+
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0x000000 );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -237,12 +225,23 @@
 	
 	function render() {
 	
-		theShip.position.x = ship.position.x;
-		theShip.position.y = ship.position.y;
-		theShip.position.z = ship.position.z;
-	
 		TWEEN.update();
 	
+		forward = new THREE.Vector3(0, 0, 0);
+		forward.x = ship.position.x - camera.position.x;
+		forward.z = ship.position.z - camera.position.z;
+		
+		sun.callback = function() { console.log( this.name ); }
+		
+	
+		// console.log(forward);
+		
+		/*
+		var matrix = new THREE.Matrix4();
+		matrix.extractRotation( ship.matrix );
+
+		var forward = new THREE.Vector3( 0, 0, 1 );
+		forward.applyMatrix4(matrix); */
 
 		window.onkeydown = function (e) {
 			var code = e.keyCode ? e.keyCode : e.which;
@@ -250,9 +249,41 @@
 				rotspeed += 0.01;
 			} else if (code === 40) { //down key
 				rotspeed -= 0.01;
-			}  else if (code == 87) { //w key
+			} else if (code === 88) { //x key
+				if(!rotspeedx)
+					rotspeedx = rotspeed;
+				else
+					rotspeedx = 0;
+			} else if (code === 89) { //y key
+				if(!rotspeedy)
+					rotspeedy = rotspeed;
+				else
+					rotspeedy = 0;
+			} else if (code == 90) { //z key
+				if(!rotspeedz)
+					rotspeedz = rotspeed;
+				else
+					rotspeedz = 0;
+					
+					
+			} else if (code == 87) { //w key
 			
-
+			/*
+				
+				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				ship.position.add(forward); 
+				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				var tween = new TWEEN.Tween(position).to(target, 2000);
+				
+				tween.onUpdate(function(){
+					ship.position.x = position.x;
+					ship.position.y = position.y;
+					ship.position.z = position.z;
+				});
+				
+				 tween.start(); */
+				
+				// ship.position.sub(forward); // forward
 				
 				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
 				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z-5 };
@@ -270,6 +301,25 @@
 			else if (code == 83) { //s key
 			
 				
+			/*
+				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				
+				if( forward.x == 0 && forward.y == 0 && forward.z == 0 )
+					ship.position.sub(forward.sub(new THREE.Vector3( 0, 0, 1 )));
+				else
+					ship.position.sub(forward);
+				
+				
+				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
+				var tween = new TWEEN.Tween(position).to(target, 2000);
+				
+				tween.onUpdate(function(){
+					ship.position.x = position.x;
+					ship.position.y = position.y;
+					ship.position.z = position.z;
+				});
+				
+				tween.start(); */
 				
 				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
 				var target = { x : ship.position.x, y: ship.position.y, z: ship.position.z+5 };
@@ -288,64 +338,31 @@
 			} else if (code == 68) { //d key
 			
 				
-				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
-				var target = { x : ship.position.x+5, y: ship.position.y, z: ship.position.z };
+				var position = { x : earthNode.position.x, y: earthNode.position.y, z: earthNode.position.z };
+				var target = { x : earthNode.position.x+5, y: earthNode.position.y, z: earthNode.position.z };
 				
 				var tween = new TWEEN.Tween(position).to(target, 2000);
 				
 				tween.onUpdate(function(){
-					ship.position.x = position.x;
-					ship.position.y = position.y;
-					ship.position.z = position.z;
+					earthNode.position.x = position.x;
+					earthNode.position.y = position.y;
+					earthNode.position.z = position.z;
 				});
 				
 				tween.start();
 			
 			}  else if (code == 65) { //a key
 			
-
-				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
-				var target = { x : ship.position.x-5, y: ship.position.y, z: ship.position.z };
+				
+				var position = { x : earthNode.position.x, y: earthNode.position.y, z: earthNode.position.z };
+				var target = { x : earthNode.position.x-5, y: earthNode.position.y, z: earthNode.position.z };
 				
 				var tween = new TWEEN.Tween(position).to(target, 2000);
 				
 				tween.onUpdate(function(){
-					ship.position.x = position.x;
-					ship.position.y = position.y;
-					ship.position.z = position.z;
-				});
-				
-				tween.start();
-			
-			} else if (code == 90) { //z key ( up)
-			
-
-				console.log('hej');	
-				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
-				var target = { x : ship.position.x, y: ship.position.y+3, z: ship.position.z };
-				
-				var tween = new TWEEN.Tween(position).to(target, 2000);
-				
-				tween.onUpdate(function(){
-					ship.position.x = position.x;
-					ship.position.y = position.y;
-					ship.position.z = position.z;
-				});
-				
-				tween.start();
-			
-			} else if (code == 88) { // x key (down)
-			
-				
-				var position = { x : ship.position.x, y: ship.position.y, z: ship.position.z };
-				var target = { x : ship.position.x, y: ship.position.y-3, z: ship.position.z };
-				
-				var tween = new TWEEN.Tween(position).to(target, 2000);
-				
-				tween.onUpdate(function(){
-					ship.position.x = position.x;
-					ship.position.y = position.y;
-					ship.position.z = position.z;
+					earthNode.position.x = position.x;
+					earthNode.position.y = position.y;
+					earthNode.position.z = position.z;
 				});
 				
 				tween.start();
@@ -368,6 +385,7 @@
 			
 				tweenRot.start();
 				
+				//ship.rotation.y += 0.01;
 				
 				
 			} else if (code == 69) { // E key
@@ -387,6 +405,16 @@
 				});
 			
 				tweenRot.start();
+				//ship.rotation.y -= 0.01;
+			} else if (code == 67) { // C key
+			
+				spacesphere.rotation.x -= 0.0004; // space rotation
+				
+
+			} else if (code == 86) { // V key
+			
+				spacesphere.rotation.x += 0.0004; // space rotation
+				
 
 			}
 
@@ -396,35 +424,37 @@
 		camera.position.y = 2;
 		camera.position.z = 10;
 		
+		//camera.rotation.x = Math.PI/20;
+		
 		// camera.position.z = ship.position.z + 10;
 
 		
 		// ***************  UPDATE TRANSFORMATIONS **************************// 
 		
-
+		earth.rotation.y += rotspeedy;
+		earth.rotation.x += rotspeedx;
+		earth.rotation.z += rotspeedz;
 		
-		spacesphere.rotation.y += 0.0008; // space rotation
 
-		sunNode.rotation.y += 0.01;
+		spacesphere.rotation.y -= 0.00008; // space rotation
+		//console.log(spacesphere.rotation.x );
+
+		sunNode.rotation.z += 0.01;
+
 		earth.rotation.y += 0.005;
-		//earthNode.rotation.y += 0.005;
-		march.rotation.y += 0.009;
+		earth.rotation.x += 0.005;
 		
-		ring.rotation.z += 0.004;
+		marchNode.rotation.z += 0.02;
 		
-		march.scale.x -= 0.0002;
-		march.scale.y -= 0.0002;
-		march.scale.z -= 0.0002;
-		
-		//moonNode.rotation.y += 0.03;
-
+		sun2.scale.x -= 0.001;
+		sun2.scale.y -= 0.001;
+		sun2.scale.z -= 0.001;
 	
 		
 		/* *****************************************************/
 
 		
 		helper.update();
-		helper2.update();
 
 		// Render the scene
 		renderer.render( scene, camera );
