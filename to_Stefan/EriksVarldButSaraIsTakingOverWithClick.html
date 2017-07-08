@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Three.js Planetary system</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<div id="container">
+	<div id="infotext" style="position: absolute;
+    color: orange;">
+		<span id="rad">0 rad/s</span>
+		<br>
+		<span id="avgrad">0 avg rad/s</span>
+		<br>
+		<span id="fps">0 fps</span>
+		<br>
+		<span id="rotspeed">rotspeed 0 rad</span>
+	</div>
+</div>
+
+<!-- <script src="three.min.js"></script> -->
+<script src="three.js"></script>
+<script src="TransformHelper.js"></script>
+<script>
+	// Lots of global variables. (This is JavaScript. No use complaining.)
+	var values;
+	var container;
+	var camera, scene, renderer;
+
+	var mouseX = 0, mouseY = 0;
+
+	var windowHalfX = window.innerWidth / 2;
+	var windowHalfY = window.innerHeight / 2;
+
+	// Object3D ("Group") nodes and Mesh nodes
+	// Object3D ("Group") nodes and Mesh nodes
+	var sceneRoot = new THREE.Group();
+	var sunNode = new THREE.Group();
+	var sunOrbiter = new THREE.Group();
+	var earthNode = new THREE.Group();
+	var earthOrbiter = new THREE.Group();
+	var moonNode = new THREE.Group();
+	var cameraNode = new THREE.Group();
+	var objectMesh;
+
+	//var objectMesh, objectMeshP1, objectMeshP2, objectMeshC1;
+	var helper;
+	var rotspeedx = 0;
+	var rotspeedy = 0;
+	var rotspeedz = 0;
+	var rotspeed = 0.03;
+
+	var objects = [];
+	var mouse;
+	var raycaster;
+
+	function onWindowResize() {
+		windowHalfX = window.innerWidth / 2;
+		windowHalfY = window.innerHeight / 2;
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+	function onDocumentMouseDown( event ) {
+		event.preventDefault();
+
+		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+		raycaster.setFromCamera( mouse, camera );
+		var intersects = raycaster.intersectObjects( objects );
+
+		if ( intersects.length > 0 ) {
+			helper.reset();
+			delete helper;
+			helper = new TransformHelper(intersects[ 0 ].object, -1, true, true, true);
+			//intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+		}
+	}
+
+
+	function init() {
+
+
+		container = document.getElementById( 'container' );
+
+		camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
+		camera.position.z = 10;
+
+		scene = new THREE.Scene();
+
+		// Mesh
+		var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
+		var materialBox = new THREE.MeshBasicMaterial();
+		materialBox.wireframe = false;
+
+		sunMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+		earthMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+		moonMesh = new THREE.Mesh( geometryBox, materialBox.clone() );
+
+
+
+		// Top-level node
+		scene.add( sceneRoot );
+
+		// Sun branch
+		sceneRoot.add( sunNode );
+		sunNode.add( sunMesh );
+		sunNode.add( sunOrbiter );
+		sunOrbiter.add( earthNode );
+		earthNode.add( earthMesh );
+		earthNode.add( earthOrbiter );
+		earthOrbiter.add( moonNode );
+		moonNode.add( moonMesh );
+
+		objects.push(sunMesh);
+		objects.push(earthMesh);
+		objects.push(moonMesh);
+
+		helper = new TransformHelper(moonMesh);
+//		Ahelper= new THREE.AxisHelper(5);
+//		earthNode.add(Ahelper);
+
+		//sceneRoot.add(helper);
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor( 0x000000 );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		container.appendChild( renderer.domElement );
+
+		window.addEventListener( 'resize', onWindowResize, false );
+		document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		mouse = new THREE.Vector2();
+		raycaster = new THREE.Raycaster();
+	}
+
+	function render() {
+
+		window.onkeydown = function (e) {
+			var code = e.keyCode ? e.keyCode : e.which;
+			if (code === 38) { //up key
+				rotspeed += 0.01;
+				//helper.reset();
+				//delete helper;
+			} else if (code === 40) { //down key
+				rotspeed -= 0.01;
+				//helper.reset();
+				//delete helper;
+				//helper = new THREE.TransformHelper(moonMesh, -1, true, true, true);
+			} else if (code === 88) { //x key
+				if(!rotspeedx)
+					rotspeedx = rotspeed;
+				else
+					rotspeedx = 0;
+			} else if (code === 89) { //y key
+				if(!rotspeedy)
+					rotspeedy = rotspeed;
+				else
+					rotspeedy = 0;
+			} else if (code == 90) { //z key
+				if(!rotspeedz)
+					rotspeedz = rotspeed;
+				else
+					rotspeedz = 0;
+			}
+
+		};
+
+		// Set up the camera
+		camera.position.x = -20;
+		camera.position.y = 2;//-mouseY*10;
+		camera.lookAt( scene.position );
+
+		// Perform animations
+		earthNode.rotation.y += rotspeedy;
+		earthNode.rotation.x += rotspeedx;
+		earthNode.rotation.z += rotspeedz;
+		
+		
+		
+		earthNode.scale.x += 0.001;
+		earthNode.scale.y += 0.001;
+		earthNode.scale.z += 0.001;
+		
+		/*
+		sunNode.scale.x -= 0.001;
+		sunNode.scale.y += 0.001;
+		sunNode.scale.z += 0.001;
+		*/
+
+
+		sunOrbiter.rotation.y += 0.01//oneTurn / 25 * deltaTime; // Sun rotation  //samma shit
+		//sunOrbiter.rotation.y += 0.00001 //oneTurn / 365 * deltaTime; // Earth orbit //samma shit
+		sunMesh.scale.x = 2.0;
+		sunMesh.scale.y = 2.0;
+		sunMesh.scale.z = 2.0;
+		earthNode.position.z = 10;
+		//earthNode.rotation.y += 0.02 //oneTurn * deltaTime; // Moon rotation
+		earthOrbiter.rotation.y += 0.01 //oneTurn / 27.3 * deltaTime; // Moon orbit
+		moonNode.position.x = 3;
+		moonMesh.scale.x = 0.5;
+		moonMesh.scale.y = 0.5;
+		moonMesh.scale.z = 0.5;
+
+		helper.update();
+//				document.getElementById("rad").textContent = (values.x + "rad/s");
+//				document.getElementById("avgrad").textContent = (values.y + "avg rad/s");
+//				document.getElementById("fps").textContent = (values.z + "fps");
+		document.getElementById("rotspeed").textContent = ("rotspeed" + rotspeed + "rad");
+		// Render the scene
+		renderer.render( scene, camera );
+	}
+
+
+	function animate() {
+		requestAnimationFrame( animate ); // Request to be called again for next frame
+		render();
+	}
+
+
+	init();    // Set up the scene
+	animate(); // Enter an infinite loop
+
+</script>
+</body>
+</html>
