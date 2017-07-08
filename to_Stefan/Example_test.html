@@ -8,16 +8,7 @@
 <body>
 
 <div id="container">
-	<div id="infotext" style="position: absolute;
-    color: orange;">
-		<span id="rad">0 rad/s</span>
-		<br>
-		<span id="avgrad">0 avg rad/s</span>
-		<br>
-		<span id="fps">0 fps</span>
-		<br>
-		<span id="rotspeed">rotspeed 0 rad</span>
-	</div>
+
 </div>
 
 <!-- <script src="three.min.js"></script> -->
@@ -208,10 +199,6 @@
 		moonMesh.scale.z = 0.5;
 
 		helper.update();
-//				document.getElementById("rad").textContent = (values.x + "rad/s");
-//				document.getElementById("avgrad").textContent = (values.y + "avg rad/s");
-//				document.getElementById("fps").textContent = (values.z + "fps");
-		document.getElementById("rotspeed").textContent = ("rotspeed" + rotspeed + "rad");
 		// Render the scene
 		renderer.render( scene, camera );
 	}
